@@ -1,0 +1,23 @@
+{
+  "name": "rbryhynets-6120",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@git.green-lms.app:22022/challenge-370/rbryhynets-6120.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.4"
+  }
+}

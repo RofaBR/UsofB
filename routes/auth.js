@@ -1,0 +1,14 @@
+import express from "express";
+
+import auth_controller from "../controllers/auth.js";
+import validator from "../middlewares/userMiddleware.js"
+import schema from "../schemas/UserSchema.js";
+const auth_router = express.Router();
+
+auth_router.post("/api/auth/register", validator.validate(schema.register), auth_controller.post_register);
+auth_router.post("/api/auth/login", validator.validate(schema.login), auth_controller.post_login);
+auth_router.post("/api/auth/logout")
+auth_router.post("/api/auth/password-reset")
+auth_router.post("/api/auth/password-reset/:confirm_token")
+
+export default auth_router;
