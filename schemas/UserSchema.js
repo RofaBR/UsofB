@@ -1,47 +1,30 @@
-export default class UserSchema {
-    constructor({id, login, password, fullName, email, avatarId, rating, role}) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.fullName = fullName;
-        this.email = email;
-        this.avatarId = avatarId;
-        this.rating = rating ?? 0;
-        this.role = role ?? "user";
-    }
+import { z } from "zod";
 
-    validate_email() {
-        //TODO
-        return this
-    }
+export const UserSchema = z.object({
+    id: z.number().optional(),
+    login: z.string().min(3, "Login must be at least 3 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    fullName: z.string().min(1, "Full name is required"),
+    email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"),
+    avatarId: z.string().optional(),
+    rating: z.number().optional(),
+    role: z.enum(["user", "admin"]),
+});
 
-    validate_fullName() {
-        //TODO
-        return this
-    }
+const UserLoginSchema = UserSchema.pick({ login: true, password: true });
+const UserRegisterSchema = UserSchema.pick({
+    login: true,
+    password: true,
+    fullName: true,
+    email: true,
+}).extend({
+    confirmPassword: z.string().min(6, "Confirm Password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
 
-    validate_login() {
-        //TODO
-        return this
-    }
-    
-    validate_password() {
-        //TODO
-        return this
-    }
-
-    static login(data) {
-        const schema = new UserSchema(data);
-        schema.validate_login();
-        schema.validate_password();
-        return schema;
-    }
-
-    static register(data) {
-        const schema = new UserSchema(data);
-        schema.validate_login();
-        schema.validate_password();
-        schema.validate_fullName();
-        return schema;
-    }
-}
+export default {
+    login: (data) => UserLoginSchema.parse(data),
+    register: (data) => UserRegisterSchema.parse(data),
+};

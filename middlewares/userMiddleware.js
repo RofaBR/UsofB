@@ -1,13 +1,17 @@
 export default class Validator {
-    static validate(schemaMethod) {
+    static validate(schema) {
         return (req, res, next) => {
             try {
-                const schema = schemaMethod(req.body);
-                req.validated = schema;
+                req.validated = schema.parse(req.body);
                 next();
             } catch (err) {
-                if (err instanceof Error && typeof err.form_response === "function") {
-                return res.status(err.code).json(err.form_response());
+                if (err.errors) {
+                    return res.status(400).json({
+                        status: "Fail",
+                        type: "Schema error",
+                        message: err.errors.map(e => e.message).join(", "),
+                        code: 400
+                    });
                 }
                 next(err);
             }

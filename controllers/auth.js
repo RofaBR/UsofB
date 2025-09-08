@@ -1,9 +1,37 @@
-import mysql_pool from '../db/mysql_pool.js';
-
+import AuthService from "../services/authService.js"
 const auth_controller = {
-    //get_login
     post_login: async (req, res) => {
-        let connection = await mysql_pool.getConnection();
-    }
-    try 
-}
+        try {
+            const user = await AuthService.login(req.validated.login, req.validated.password);
+            const {password, ...safeUser} = user
+            return res.json({
+                status: "Success",
+                user: safeUser
+            });
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "Auth error",
+                message: err.message,
+            });
+        }
+    },
+
+    post_register: async (req, res, next) => {
+        try {
+            const userId = await AuthService.register(req.validated);
+            return res.json({
+                status: "Success",
+                userId,
+            });
+        } catch (err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "Auth error",
+                message: err.message,
+            });
+        }
+    },
+};
+
+export default auth_controller;
