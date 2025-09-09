@@ -1,4 +1,4 @@
-import ExcxeptionSchema from "./ExceptionSchema";
+import ExcxeptionSchema from "./ExceptionSchema.js";
 
 export default class UserExceptionSchema extends ExcxeptionSchema {
     static errors = Object.freeze([

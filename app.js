@@ -13,7 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"))
 
 app.use(auth_router);
-app.use()
 
 http_server.listen(port, () => {
     console.log(`Server listening on port ${port}`)

@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
-import UserModel from "../models/UserModel"
+import UserModel from "../models/UserModel.js"
 
 const AuthService = { 
     async login(login, password) {
-        const user = await UserModel.findByLogin(login);
+        const user = await UserModel.findbyLogin(login);
         if(!user) {
             //TODO ERR
         }

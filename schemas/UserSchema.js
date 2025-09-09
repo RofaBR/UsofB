@@ -4,7 +4,7 @@ export const UserSchema = z.object({
     id: z.number().optional(),
     login: z.string().min(3, "Login must be at least 3 characters"),
     password: z.string().min(6, "Password must be at least 6 characters"),
-    fullName: z.string().min(1, "Full name is required"),
+    full_name: z.string().min(1, "Full name is required"),
     email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"),
     avatarId: z.string().optional(),
     rating: z.number().optional(),
@@ -15,7 +15,7 @@ const UserLoginSchema = UserSchema.pick({ login: true, password: true });
 const UserRegisterSchema = UserSchema.pick({
     login: true,
     password: true,
-    fullName: true,
+    full_name: true,
     email: true,
 }).extend({
     confirmPassword: z.string().min(6, "Confirm Password is required"),

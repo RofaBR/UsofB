@@ -2,7 +2,7 @@ export default class Validator {
     static validate(schema) {
         return (req, res, next) => {
             try {
-                req.validated = schema.parse(req.body);
+                req.validated = schema(req.body);
                 next();
             } catch (err) {
                 if (err.errors) {
