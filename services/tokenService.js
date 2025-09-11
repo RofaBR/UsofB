@@ -4,7 +4,7 @@ import TokenModel from "../models/TokenModel.js";
 
 const TokenService = {
     generateTokens(payload) {
-        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "15"});
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "15m"});
         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d"});
         return { accessToken, refreshToken };
     },
@@ -26,23 +26,24 @@ const TokenService = {
     async validateRefreshToken(token) {
         try {
             return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        } catch {
+        } catch(err) {
             return null;
         }
     },
 
-    async findToken(token) {
-        const tokens = await TokenModel.findAll();
-        for (const t of tokens) {
-            if (await bcrypt.compare(token, t.token_hash)) {
-                return t;
+    async findToken(user_id, token) {
+        const rows = await TokenModel.findByUserID(user_id);
+        const tokenData = rows[0];
+        for (const row of tokenData) {
+            if (await bcrypt.compare(token, row.token_hash)) {
+                return row;
             }
         }
         return null;
     },
 
     async removeToken(token) {
-        await TokenModel.delete(token);
+        await TokenModel.remove(token);
     }
 };
 

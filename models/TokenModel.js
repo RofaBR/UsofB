@@ -11,9 +11,8 @@ const TokenModel = {
         return result.insertId;
     },
 
-    async findByHash(token_hash) {
-        const [ rows ] = await mysql_pool.execute(TOKEN_QUERIES.FIND_BY_HASH, [token_hash]);
-        return rows[0];
+    async findByUserID(user_id) {
+        return await mysql_pool.execute(TOKEN_QUERIES.FIND_USER_ID, [user_id]);
     },
 
     async remove(token_hash) {
