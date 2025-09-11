@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import UserModel from "../models/UserModel.js"
+import TokenService from "./tokenService.js"
 
 const AuthService = { 
     async login(login, password) {
@@ -11,7 +12,11 @@ const AuthService = {
         if(!match) {
             //TODO ERR
         }
-        return user;
+
+        const tokens = TokenService.generateTokens({ userId: user.id });
+        await TokenService.saveRefreshToken(user.id, tokens.refreshToken);
+
+        return { user, ...tokens };
     },
 
     async register(data) {
