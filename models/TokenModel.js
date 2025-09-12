@@ -1,7 +1,10 @@
 import { TOKEN_QUERIES } from "../db/queries/token_queries.js";
-import mysql_pool from "../db/mysql_pool.js"
+import mysql_pool from "../db/mysql_pool.js";
+import { createBaseModel } from "./BaseModel.js";
 
 const TokenModel = {
+    ...createBaseModel("tokens", mysql_pool, class { constructor(data) { Object.assign(this, data); } }),
+
     async save(userId, tokenHash, expireAt) {
         const [ result ] = await mysql_pool.execute(TOKEN_QUERIES.CREATE, [
             userId,

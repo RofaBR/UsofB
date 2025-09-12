@@ -1,7 +1,7 @@
 import express from "express";
 
 import auth_controller from "../controllers/auth.js";
-import validator from "../middlewares/userMiddleware.js"
+import validator from "../middlewares/baseMiddleware.js"
 import tokenValidator from "../middlewares/tokenMiddleware.js";
 
 import schema from "../schemas/UserSchema.js";

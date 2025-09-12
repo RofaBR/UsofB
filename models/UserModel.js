@@ -1,7 +1,11 @@
 import { USER_QUERIES } from "../db/queries/user_queries.js";
-import mysql_pool from "../db/mysql_pool.js"
+import mysql_pool from "../db/mysql_pool.js";
+import { createBaseModel } from "./BaseModel.js";
+import { UserSchema } from "../schemas/UserSchema.js";
 
 const UserModel = {
+    ...createBaseModel("users", mysql_pool, UserSchema),
+
     async findbyLogin(login) {
         const [rows] = await mysql_pool.execute(USER_QUERIES.FIND_BY_LOGIN, [login]);
         return rows[0] || null;
@@ -18,6 +22,6 @@ const UserModel = {
         ]);
         return result.insertId
     }
-}
+};
 
-export default UserModel
+export default UserModel;
