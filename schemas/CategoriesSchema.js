@@ -11,7 +11,7 @@ export const CategorySchema = z.object({
 
 const CreateCategorySchema = CategorySchema.pick({ title: true, description: true });
 
-const UpdateCategorySchema = CategorySchema;
+const UpdateCategorySchema = CategorySchema.partial();
 const ReadCategorySchema = CategorySchema;
 
 export default {

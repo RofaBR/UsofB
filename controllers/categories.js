@@ -8,7 +8,7 @@ const categories_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "Categ error",
+                type: "CATEGORIES_FETCH_ERROR",
                 message: err.message,
             });
         }
@@ -21,7 +21,7 @@ const categories_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "Categ error",
+                type: "CATEGORY_FETCH_ERROR",
                 message: err.message,
             });
         }
@@ -34,7 +34,7 @@ const categories_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "Categ error",
+                type: "CATEGORY_UPDATE_ERROR",
                 message: err.message,
             });
         }
@@ -49,7 +49,7 @@ const categories_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "Categ error",
+                type: "CATEGORY_DELETE_ERROR",
                 message: err.message,
             });
         }
@@ -62,7 +62,7 @@ const categories_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "Categ error",
+                type: "CATEGORY_CREATE_ERROR",
                 message: err.message,
             });
         }

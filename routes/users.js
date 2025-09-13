@@ -1,16 +1,19 @@
 import express from "express";
 
 import user_controller from "../controllers/user.js";
-import validator from "../middlewares/userMiddleware.js"
+import validator from "../middlewares/baseMiddleware.js"
 import schema from "../schemas/UserSchema.js";
+import TokenValidator from "../middlewares/tokenMiddleware.js";
 const user_router = express.Router();
 
-user_router.get("/api/users", validator.validate(schema.register), auth_controller.post_register);
-user_router.get("/api/users/:user_id", validator.validate(schema.register), auth_controller.post_register);
-user_router.post("/api/users")
+user_router.get("/api/users", TokenValidator.validateAccess(), user_controller.get_getAllUsers);
+user_router.get("/api/users/:user_id", TokenValidator.validateAccess(), user_controller.get_getUser);
+user_router.post("/api/users", TokenValidator.validateAccess(), validator.validate(schema.adminCreate), user_controller.post_create);
 
-user_router.patch("/api/users/avatar")
-user_router.patch("/api/users/:user_id")
-user_router.delete("/api/users/:user_id")
+// user_router.patch("/api/users/avatar", TokenValidator.validateAccess(), user_controller.patch_uploadAvatar);         
+// user_router.patch("/api/users/avatar", user_controller.patch_uploadAvatar);
 
+user_router.patch("/api/users/:user_id", TokenValidator.validateAccess(), validator.validate(schema.update), user_controller.patch_updateUser);
+
+user_router.delete("/api/users/:user_id", TokenValidator.validateAccess(), user_controller.delete_deleteUser);
 export default user_router;

@@ -1,7 +1,7 @@
 import { USER_QUERIES } from "../db/queries/user_queries.js";
 import mysql_pool from "../db/mysql_pool.js";
 import { createBaseModel } from "./BaseModel.js";
-import { UserSchema } from "../schemas/UserSchema.js";
+import UserSchema from "../schemas/UserSchema.js";
 
 const UserModel = {
     ...createBaseModel("users", mysql_pool, UserSchema),
@@ -18,7 +18,7 @@ const UserModel = {
             user.full_name,
             user.email,
             user.avatar || 'def_avatar.png',
-            user.role || 'user'
+            user.role
         ]);
         return result.insertId
     }

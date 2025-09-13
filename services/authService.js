@@ -16,10 +16,13 @@ const AuthService = {
 
     async register(data) {
         const hashedPassword = await bcrypt.hash(data.password, 10);
+
         const userId = await UserModel.createUser({
             ...data,
-            password: hashedPassword
+            password: hashedPassword,
+            role: "user"
         });
+
         return userId;
     }
 };

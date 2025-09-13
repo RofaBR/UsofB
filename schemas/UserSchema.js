@@ -24,7 +24,26 @@ const UserRegisterSchema = UserSchema.pick({
     path: ["confirmPassword"],
 });
 
+const AdminCreateUserSchema = UserSchema.pick({
+    login: true,
+    password: true,
+    full_name: true,
+    email: true,
+    role: true,
+}).extend({
+    confirmPassword: z.string().min(6, "Confirm Password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
+
+const UserUpdateSchema = UserSchema.partial();
+const ReadUserSchena = UserSchema;
+
 export default {
     login: (data) => UserLoginSchema.parse(data),
     register: (data) => UserRegisterSchema.parse(data),
+    update: (data) => UserUpdateSchema.parse(data),
+    adminCreate: (data) => AdminCreateUserSchema.parse(data),
+    read: (data) =>  ReadUserSchena.parse(data),
 };
