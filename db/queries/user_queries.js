@@ -1,7 +1,7 @@
 export const USER_QUERIES = {
     CREATE: `
-        INSERT INTO users (login, password, full_name, email, avatar, role)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO users (login, password, full_name, email, avatar, role, user_token)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
     UPDATE: `
         UPDATE users

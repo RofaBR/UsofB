@@ -10,7 +10,8 @@ const auth_router = express.Router();
 auth_router.post("/api/auth/register", validator.validate(schema.register), auth_controller.post_register);
 auth_router.post("/api/auth/login", validator.validate(schema.login), auth_controller.post_login);
 auth_router.post("/api/auth/logout", tokenValidator.validateRefresh(), auth_controller.post_logout);
-// auth_router.post("/api/auth/password-reset")
-// auth_router.post("/api/auth/password-reset/:confirm_token")
+auth_router.post("/api/auth/password-reset", validator.validate(schema.email),auth_controller.post_passwordReset);
+auth_router.post("/api/auth/password-reset/:confirm_token", validator.validate(schema.passwordReset),auth_controller.post_confirmReset);
+auth_router.post("/api/auth/email-confirm/:confirm_token", auth_controller.post_confirmEmail);
 
 export default auth_router;

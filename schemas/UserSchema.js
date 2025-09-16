@@ -9,6 +9,8 @@ export const UserSchema = z.object({
     avatarId: z.string().optional(),
     rating: z.number().optional(),
     role: z.enum(["user", "admin"]),
+    user_token: z.string().nullable().optional(),
+    email_confirmed: z.number().optional(),
 });
 
 const UserLoginSchema = UserSchema.pick({ login: true, password: true });
@@ -39,6 +41,17 @@ const AdminCreateUserSchema = UserSchema.pick({
 
 const UserUpdateSchema = UserSchema.partial();
 const ReadUserSchena = UserSchema;
+const EmailSchema = z.object({
+    email: UserSchema.shape.email,
+});
+
+const PasswordResetSchema = z.object({
+    password: UserSchema.shape.password,
+    confirmPassword: z.string().min(6, "Confirm Password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
 
 export default {
     login: (data) => UserLoginSchema.parse(data),
@@ -46,4 +59,6 @@ export default {
     update: (data) => UserUpdateSchema.parse(data),
     adminCreate: (data) => AdminCreateUserSchema.parse(data),
     read: (data) =>  ReadUserSchena.parse(data),
+    email: (data) => EmailSchema.parse(data),
+    passwordReset: (data) => PasswordResetSchema.parse(data),
 };

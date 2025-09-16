@@ -18,7 +18,8 @@ const UserModel = {
             user.full_name,
             user.email,
             user.avatar || 'def_avatar.png',
-            user.role
+            user.role,
+            user.user_token
         ]);
         return result.insertId
     }

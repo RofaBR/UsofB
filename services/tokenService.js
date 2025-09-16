@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import TokenModel from "../models/TokenModel.js";
 
 const TokenService = {
@@ -44,7 +45,11 @@ const TokenService = {
 
     async removeToken(token) {
         await TokenModel.remove(token);
-    }
+    },
+
+    generateConfToken() {
+        return crypto.randomBytes(32).toString("hex");
+    },
 };
 
 export default TokenService;
