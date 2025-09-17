@@ -1,4 +1,5 @@
 import UserService from "../services/userService.js";
+import path from "path";
 
 const users_controller = {
     get_getAllUsers: async (req, res) => {
@@ -81,10 +82,37 @@ const users_controller = {
 
     patch_updateUser: async(req, res) => {
         try {
+            if (req.user.userId != req.params.user_id) {
+                return res.status(403).json({
+                    status: "Fail",
+                    type: "UnauthorizedAction",
+                    message: "User ID does not match. You cannot update another user's profile."
+                });
+            }
             const updatedUser = await UserService.updateUser(req.params.user_id, req.validated)
             res.json(updatedUser)
         } catch(err) {
             return res.status(400).json({
+                status: "Fail",
+                type: "EEh vpadly",
+                message: err.message
+            }); 
+        }
+    },
+
+    patch_uploadAvatar: async(req, res) => {
+        try {
+            if (!req.file) {
+                throw new Error("No file uploaded");
+            }
+            const filename = `${req.user.userId}${path.extname(req.file.originalname)}`;
+            await UserService.updateUser(req.user.userId, { avatar: filename });
+            res.json({
+                status: "Success",
+                message: "Avatar uploaded successfully",
+            });
+        } catch(err) {
+                        return res.status(400).json({
                 status: "Fail",
                 type: "EEh vpadly",
                 message: err.message

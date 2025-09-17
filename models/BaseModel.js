@@ -56,6 +56,40 @@ export const createBaseModel = (tableName, db, SchemaClass) => {
             const sql = `DELETE FROM \`${tableName}\` WHERE id = ?`;
             await db.execute(sql, [id]);
             return true;
+        },
+
+        async findWithPagination({ cursor = null, limit = 10, orderBy = "id", direction = "ASC", where = {} }) {
+            let sql = `SELECT * FROM \`${tableName}\``;
+            let values = [];
+
+            const keys = Object.keys(where);
+            if (keys.length) {
+                const conditions = keys.map(k => `\`${k}\` = ?`).join(" AND ");
+                sql += ` WHERE ${conditions}`;
+                values = [...Object.values(where)];
+            }
+
+            if (cursor !== null) {
+                sql += keys.length ? " AND" : " WHERE";
+                sql += direction === "ASC"
+                    ? ` \`${orderBy}\` > ?`
+                    : ` \`${orderBy}\` < ?`;
+                values.push(cursor);
+            }
+
+            sql += ` ORDER BY \`${orderBy}\` ${direction} LIMIT ?`;
+            values.push(limit + 1);
+
+            const [rows] = await db.execute(sql, values);
+            const data = rows.slice(0, limit).map(row => SchemaClass.read(row));
+
+            const nextCursor = rows.length > limit ? rows[limit - 1][orderBy] : null;
+
+            return {
+                data,
+                nextCursor,
+                hasNextPage: rows.length > limit,
+            };
         }
     };
 };

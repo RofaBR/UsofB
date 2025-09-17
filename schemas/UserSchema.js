@@ -6,7 +6,7 @@ export const UserSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters"),
     full_name: z.string().min(1, "Full name is required"),
     email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address"),
-    avatarId: z.string().optional(),
+    avatar: z.string().optional(),
     rating: z.number().optional(),
     role: z.enum(["user", "admin"]),
     user_token: z.string().nullable().optional(),
