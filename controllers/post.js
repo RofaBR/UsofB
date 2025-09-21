@@ -2,6 +2,7 @@ import PostService from "../services/postService.js"
 import CommentService from "../services/commentService.js"
 import LikesService from "../services/likesService.js";
 import CategoriesService from "../services/categoriesService.js";
+import FavoriteService from "../services/favoriteService.js"
 
 const post_controller = {
     get_posts: async (req, res) => {
@@ -10,6 +11,7 @@ const post_controller = {
             const limit = parseInt(req.query.limit, 10) || 10;
             const orderBy = req.query.orderBy || "publish_date";
             const orderDir = (req.query.direction || "DESC").toUpperCase();
+
             let categories = [];
             if (req.query.categories) {
                 if (Array.isArray(req.query.categories)) {
@@ -19,17 +21,23 @@ const post_controller = {
                 }
             }
 
+
+            const favoriteOnly = req.query.favorite === "true";
+            const userId = req.query.user_id ? parseInt(req.query.user_id, 10) : null;
+
             const result = await PostService.getPosts({
                 page,
                 limit,
                 orderBy,
                 orderDir,
                 categories,
+                favoriteOnly,
+                userId,
             });
 
             return res.status(200).json({
                 status: "Success",
-                result
+                result,
             });
         } catch (err) {
             return res.status(400).json({
@@ -39,6 +47,7 @@ const post_controller = {
             });
         }
     },
+
 
     get_post: async (req, res) => {
         try {
@@ -168,6 +177,44 @@ const post_controller = {
                 type: "POST_LIKE_ERROR",
                 message: err.message
             });
+        }
+    },
+
+    post_favorite : async (req, res) => {
+        try {
+            const favoriteData = {
+                user_id: req.user.userId,
+                post_id: Number(req.params.post_id) 
+            }
+            await FavoriteService.postFavorite(favoriteData);
+            return res.status(201).json({
+                status: "Success"
+            })
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "POST_FAVORITE_ERROR",
+                message: err.message
+            })
+        }
+    },
+
+    delete_favorite : async (req, res) => {
+        try {
+            const favoriteData = {
+                user_id: req.user.userId,
+                post_id: Number(req.params.post_id) 
+            }
+            await FavoriteService.deleteFavorite(favoriteData);
+            return res.status(201).json({
+                status: "Success"
+            })
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "DELETE_FAVORITE_ERROR",
+                message: err.message
+            })
         }
     },
 

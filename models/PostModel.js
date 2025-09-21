@@ -13,16 +13,18 @@ const PostModel = {
         return rows.map(row => PostsSchema.read(row));
     },
 
-     async findWithFilters({ 
+    async findWithFilters({ 
         page = 1, 
         limit = 10, 
         orderBy = "publish_date", 
         orderDir = "DESC", 
-        categories = [] 
+        categories = [], 
+        favoriteOnly = false,
+        userId = null
     }) {
         let values = [];
         let joins = [];
-        let whereClauses = [];
+        let whereClauses = ["p.status = 'active'"];
         let selectColumns = ["p.*"];
         let orderColumn;
 
@@ -46,6 +48,12 @@ const PostModel = {
             const placeholders = categories.map(() => "?").join(",");
             whereClauses.push(`pc.category_id IN (${placeholders})`);
             values.push(...categories);
+        }
+
+        if (favoriteOnly && userId) {
+            joins.push(`JOIN favorite f ON f.post_id = p.id`);
+            whereClauses.push(`f.user_id = ?`);
+            values.push(userId);
         }
 
         let sql = `

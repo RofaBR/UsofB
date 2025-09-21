@@ -10,6 +10,10 @@ const PostService = {
         return await PostModel.findById(post_id);
     },
 
+    async getFavorite(user_id) {
+        return await PostModel.findFavoritesByUser(user_id)
+    },
+
     async findAllWithIds(ids) {
         const posts =  await PostModel.findAllWithIds(ids);
         return posts
