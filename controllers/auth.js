@@ -11,7 +11,7 @@ const auth_controller = {
             await TokenService.saveRefreshToken(user.id, tokens.refreshToken);
             
             const {password, ...safeUser} = user
-            return res.json({
+            return res.status(200).json({
                 status: "Success",
                 user: safeUser,
                 tokens
@@ -19,7 +19,7 @@ const auth_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "Auth error",
+                type: "LOGIN_ERROR",
                 message: err.message,
             });
         }
@@ -39,14 +39,15 @@ const auth_controller = {
                 html: `<p>Click to confirm: <a href="http://localhost:8080/api/auth/email-confirm/${token}">Confirm mail</a></p>`,
             })
 
-            return res.json({
+            return res.status(201).json({
                 status: "Success",
                 userId,
+                message: "User registered. Please confirm your email."
             });
         } catch (err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "Auth error",
+                type: "REGISTER_ERROR",
                 message: err.message,
             });
         }
@@ -55,14 +56,11 @@ const auth_controller = {
     post_logout : async (req, res) => {
         try {
             await TokenService.removeToken(req.token_hash)
-            return res.json({
-                status: "Success",
-                message: "Logged out successfully"
-            });
+            return res.status(204).send();
         } catch(err) {
             return res.status(400).json({
                 stastus: "Fail",
-                type: "Auth error",
+                type: "LOGOUT_ERROR",
                 message: err.message
             })
         }
@@ -73,7 +71,11 @@ const auth_controller = {
             const token =  TokenService.generateConfToken();
             const is_user = await AuthService.createUserToken(req.validated.email, token);
             if (!is_user) {
-                return res.status(404).json({ status: "Fail", message: "User not found" });
+                return res.status(404).json({
+                    status: "Fail",
+                    type: "USER_NOT_FOUND",
+                    message: "User not found"
+                });
             }
 
             await SenderService.sendEmail({
@@ -82,11 +84,14 @@ const auth_controller = {
                 html: `<p>Click to reset: <a href="http://localhost:8080/api/auth/password-reset/${token}">Reset Password</a></p>`,
             });
 
-            res.json({ status: "ok", message: "Reset link sent" });
+            return res.status(200).json({
+                status: "Success",
+                message: "Password reset link sent"
+            });
         } catch (err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "reset error",
+                type: "PASSWORD_RESET_ERROR",
                 message: err.message
             });
         }
@@ -95,11 +100,14 @@ const auth_controller = {
     post_confirmReset: async (req, res) => {
         try {
             await AuthService.resetPassword(req.params.confirm_token, req.validated.password);
-            res.json({ status: "ok", message: "Password has been reset successfully" });
+            return res.status(200).json({
+                status: "Success",
+                message: "Password has been reset successfully"
+            });
         } catch (err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "reset error",
+                type: "CONFIRM_PASSWORD_RESET_ERROR",
                 message: err.message
             });
         }
@@ -108,15 +116,35 @@ const auth_controller = {
     post_confirmEmail : async (req, res) => {
         try {
             await AuthService.confirmEmail(req.params.confirm_token);
-            res.json({ status: "ok", message: "Mail has been verified successfully" });
+            return res.status(200).json({
+                status: "Success",
+                message: "Email has been verified successfully"
+            });
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "confirm error",
+                type: "CONFIRM_EMAIL_ERROR",
                 message: err.message
             });
         }
     },
+
+    post_refreshToken : async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const accessToken = TokenService.generateAccessToken({ userId });
+            return res.status(200).json({
+                status: "Success",
+                accessToken
+            });
+        } catch(err) {
+            return res.status(401).json({
+                status: "Fail",
+                type: "REFRESH_TOKEN_ERROR",
+                message: err.message
+            });
+        }
+    }
 };
 
 export default auth_controller;

@@ -10,6 +10,10 @@ const TokenService = {
         return { accessToken, refreshToken };
     },
 
+    generateAccessToken(payload) {
+        return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "15m" });
+    },
+
     async saveRefreshToken(userId, refreshToken) {
         const tokenHash = await bcrypt.hash(refreshToken, 2);
         const expireAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)

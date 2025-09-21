@@ -5,11 +5,14 @@ const users_controller = {
     get_getAllUsers: async (req, res) => {
         try {
             const users = await UserService.getAllUsers();
-            res.json(users);
+            return res.status(200).json({
+                status: "Success",
+                users
+            });
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "EEh vpadly",
+                type: "USERS_FETCH_ERROR",
                 message: err.message
             });
         }
@@ -18,11 +21,14 @@ const users_controller = {
     get_getUser: async (req, res) => {
         try {
             const user = await UserService.getUser(req.params.user_id)
-            res.json(user);
+            return res.status(200).json({
+                status: "Success",
+                user
+            });
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "EEh vpadly",
+                type: "USER_FETCH_ERROR",
                 message: err.message
             });
         }
@@ -41,13 +47,13 @@ const users_controller = {
 
             const user = await UserService.createUser(req.validated)
             res.status(201).json({
+                status: "Succses",
                 user: user,
-                status: "Succses"
             })
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "EEh vpadly",
+                type: "USER_CREATE_ERROR",
                 message: err.message
             });
         }
@@ -56,45 +62,34 @@ const users_controller = {
     delete_deleteUser: async(req, res) => {
         try {
             await UserService.deleteUser(req.params.user_id)
-            return res.json({
-                status: "Succses"
-            })
+            return res.status(204).send();
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "EEh vpadly",
+                type: "USER_DELETE_ERROR",
                 message: err.message
             });
         }
     },
     
-    patch_uploadAvatar: async(req, res) => {
-        try {
-            
-        } catch(err) {
-            return res.status(400).json({
-                status: "Fail",
-                type: "EEh vpadly",
-                message: err.message
-            });
-        }
-    },
-
     patch_updateUser: async(req, res) => {
         try {
             if (req.user.userId != req.params.user_id) {
                 return res.status(403).json({
                     status: "Fail",
-                    type: "UnauthorizedAction",
-                    message: "User ID does not match. You cannot update another user's profile."
+                    type: "UNAUTHORIZED_ACTION",
+                    message: "You cannot update another user's profile"
                 });
             }
             const updatedUser = await UserService.updateUser(req.params.user_id, req.validated)
-            res.json(updatedUser)
+            return res.status(200).json({
+                status: "Success",
+                user: updatedUser
+            });
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "EEh vpadly",
+                type: "USER_UPDATE_ERROR",
                 message: err.message
             }); 
         }
@@ -106,15 +101,17 @@ const users_controller = {
                 throw new Error("No file uploaded");
             }
             const filename = `${req.user.userId}${path.extname(req.file.originalname)}`;
-            await UserService.updateUser(req.user.userId, { avatar: filename });
-            res.json({
-                status: "Success",
+            const updatedUser = await UserService.updateUser(req.user.userId, { avatar: filename });
+            
+            return res.status(200).json({
+                status: "success",
                 message: "Avatar uploaded successfully",
+                user: updatedUser
             });
         } catch(err) {
-                        return res.status(400).json({
+            return res.status(400).json({
                 status: "Fail",
-                type: "EEh vpadly",
+                type: "AVATAR_UPLOAD_ERROR",
                 message: err.message
             }); 
         }

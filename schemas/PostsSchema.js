@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const PostSchema = z.object({
     id: z.number().optional(),
-    author_id: z.number().min(1, "Author ID is required"),
+    author_id: z.number().optional(),
     title: z.string().min(3, "Title must be at least 3 characters"),
-    publish_date: z.string().datetime().optional(),
+    publish_date: z.coerce.date().optional(),
     status: z.enum(["active", "inactive"]).default("active"),
     content: z.string().min(1, "Content is required"),
     categories: z.array(z.number().min(1)).optional(),
