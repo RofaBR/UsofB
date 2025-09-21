@@ -2,7 +2,7 @@ import UserService from "../services/userService.js";
 import path from "path";
 
 const users_controller = {
-    get_getAllUsers: async (req, res) => {
+    get_Users: async (req, res) => {
         try {
             const users = await UserService.getAllUsers();
             return res.status(200).json({
@@ -18,7 +18,7 @@ const users_controller = {
         }
     },
 
-    get_getUser: async (req, res) => {
+    get_User: async (req, res) => {
         try {
             const user = await UserService.getUser(req.params.user_id)
             return res.status(200).json({
@@ -59,7 +59,7 @@ const users_controller = {
         }
     },
 
-    delete_deleteUser: async(req, res) => {
+    delete_User: async(req, res) => {
         try {
             await UserService.deleteUser(req.params.user_id)
             return res.status(204).send();
