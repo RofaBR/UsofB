@@ -20,13 +20,21 @@ const PostModel = {
         orderDir = "DESC", 
         categories = [], 
         favoriteOnly = false,
-        userId = null
+        userId = null,
+        status = "active"
     }) {
         let values = [];
         let joins = [];
-        let whereClauses = ["p.status = 'active'"];
+        let whereClauses = [
+            "p.ban_status = 0" 
+        ];
         let selectColumns = ["p.*"];
         let orderColumn;
+
+        if (status) {
+            whereClauses.push("p.status = ?");
+            values.push(status);
+        }
 
         if (["likes", "dislikes", "score"].includes(orderBy)) {
             joins.push(`LEFT JOIN likes l ON l.target_id = p.id AND l.target_type = 'post'`);
@@ -39,6 +47,8 @@ const PostModel = {
             orderColumn =
                 orderBy === "likes" ? "like_count" :
                 orderBy === "dislikes" ? "dislike_count" : "score";
+        } else if (orderBy === "status") {
+            orderColumn = "p.status";
         } else {
             orderColumn = `p.${orderBy}`;
         }
@@ -63,7 +73,11 @@ const PostModel = {
             ${whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : ""}
         `;
 
-        if (["likes", "dislikes", "score"].includes(orderBy) || categories.length > 0) {
+        if (
+            ["likes", "dislikes", "score"].includes(orderBy) ||
+            categories.length > 0 ||
+            (favoriteOnly && userId)
+        ) {
             sql += " GROUP BY p.id";
         }
 

@@ -11,6 +11,7 @@ const post_controller = {
             const limit = parseInt(req.query.limit, 10) || 10;
             const orderBy = req.query.orderBy || "publish_date";
             const orderDir = (req.query.direction || "DESC").toUpperCase();
+            const status = req.query.status || "active";
 
             let categories = [];
             if (req.query.categories) {
@@ -20,7 +21,6 @@ const post_controller = {
                     categories = req.query.categories.split(",").map(Number);
                 }
             }
-
 
             const favoriteOnly = req.query.favorite === "true";
             const userId = req.query.user_id ? parseInt(req.query.user_id, 10) : null;
@@ -33,6 +33,7 @@ const post_controller = {
                 categories,
                 favoriteOnly,
                 userId,
+                status,
             });
 
             return res.status(200).json({
@@ -47,7 +48,6 @@ const post_controller = {
             });
         }
     },
-
 
     get_post: async (req, res) => {
         try {
@@ -153,7 +153,7 @@ const post_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "EEh vpadly Post",
+                type: "POST_CREATE_ERROR",
                 message: err.message
             });
         }
@@ -177,6 +177,26 @@ const post_controller = {
                 type: "POST_LIKE_ERROR",
                 message: err.message
             });
+        }
+    },
+
+    post_ban : async (req ,res) => {
+        try {
+            const data = {
+                user_id: req.user.userId,
+                post_id: req.params.post_id,
+                ban_status: req.body.ban_status
+            }
+            await PostService.postBan(data);
+            return res.status(201).json({
+                status: "Success",
+            });
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "POST_CHANGE_BAN_STATUS_ERROR",
+                message: err.message
+            });  
         }
     },
 

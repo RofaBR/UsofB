@@ -1,5 +1,6 @@
 import PostModel from "../models/PostModel.js"
 import PostCategoriesModel from "../models/PostCategoriesModel.js"
+import UserModel from "../models/UserModel.js";
 
 const PostService = {
     async getPosts(params) {
@@ -67,6 +68,15 @@ const PostService = {
             throw new Error("You are not allowed to delete this post");
         }
         return await PostModel.deleteById(data.post_id);
+    },
+
+    async postBan({ user_id, post_id, ban_status }) {
+        const user = await UserModel.findById(user_id);
+
+        if (user.role !== "admin") {
+            throw new Error("Permission denied. Only admin can ban/unban posts.");
+        }
+        return await PostModel.updateById(post_id, { ban_status });
     }
 
 }

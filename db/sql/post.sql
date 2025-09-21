@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS posts(
     publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status ENUM('active', 'inactive') DEFAULT 'active',
     content TEXT NOT NULL,
+    ban_status TINYINT(1) DEFAULT 0,
     FOREIGN KEY (author_id) REFERENCES users(id) 
 );
 
