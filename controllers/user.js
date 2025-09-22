@@ -1,10 +1,19 @@
+import { requireRole } from "../middlewares/requireRole.js";
 import UserService from "../services/userService.js";
 import path from "path";
 
 const users_controller = {
     get_Users: async (req, res) => {
         try {
+            const role = await UserService.checkRole(req.user.userId);
             const users = await UserService.getAllUsers();
+            if (role === "user") {
+                users = users.map(u => ({
+                    full_name: u.full_name,
+                    avatar: u.avatar,
+                    rating: u.rating,
+                }));
+            }
             return res.status(200).json({
                 status: "Success",
                 users
@@ -20,7 +29,15 @@ const users_controller = {
 
     get_User: async (req, res) => {
         try {
+            const role = await UserService.checkRole(req.user.userId);
             const user = await UserService.getUser(req.params.user_id)
+            if (role === "user") {
+                user = {
+                    full_name: user.full_name,
+                    avatar: user.avatar,
+                    rating: user.rating
+                }
+            }
             return res.status(200).json({
                 status: "Success",
                 user
@@ -36,15 +53,6 @@ const users_controller = {
 
     post_create: async(req, res) => {
         try {
-            const user_role = await UserService.checkRole(req.user.userId);
-            if (user_role !== "admin") {
-                return res.status(403).json({
-                    status: "Fail",
-                    type: "Permission error",
-                    message: "Only admins can create new users"
-                });
-            }
-
             const user = await UserService.createUser(req.validated)
             res.status(201).json({
                 status: "Succses",
@@ -75,11 +83,14 @@ const users_controller = {
     patch_updateUser: async(req, res) => {
         try {
             if (req.user.userId != req.params.user_id) {
-                return res.status(403).json({
-                    status: "Fail",
-                    type: "UNAUTHORIZED_ACTION",
-                    message: "You cannot update another user's profile"
-                });
+                const role = await UserService.checkRole(req.user.userId);
+                if (role === "user") {
+                    return res.status(403).json({
+                        status: "Fail",
+                        type: "UNAUTHORIZED_ACTION",
+                        message: "You cannot update another user's profile"
+                    });
+                }
             }
             const updatedUser = await UserService.updateUser(req.params.user_id, req.validated)
             return res.status(200).json({

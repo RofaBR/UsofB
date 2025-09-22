@@ -1,5 +1,6 @@
 import CategoriesService from "../services/categoriesService.js"
 import PostService from "../services/postService.js";
+import UserService from "../services/userService.js";
 
 const categories_controller = {
     get_getAll: async (req, res) => {
@@ -51,7 +52,7 @@ const categories_controller = {
         }
     },
 
-    patch_updateCategory: async (req, res) => {
+    patch_Category: async (req, res) => {
         try {
             const updatedCategory = await CategoriesService.updatedCategory(req.params.category_id, req.validated);
             return res.status(200).json({
@@ -67,7 +68,7 @@ const categories_controller = {
         }
     },
 
-    delete_deleteCategory: async (req, res) => {
+    delete_Category: async (req, res) => {
         try {
             await CategoriesService.deleteCategory(req.params.category_id)
             return res.status(204).send();

@@ -3,6 +3,7 @@ import CommentService from "../services/commentService.js"
 import LikesService from "../services/likesService.js";
 import CategoriesService from "../services/categoriesService.js";
 import FavoriteService from "../services/favoriteService.js"
+import UserService from "../services/userService.js";
 
 const post_controller = {
     get_posts: async (req, res) => {
@@ -15,15 +16,20 @@ const post_controller = {
 
             let categories = [];
             if (req.query.categories) {
-                if (Array.isArray(req.query.categories)) {
-                    categories = req.query.categories.map(Number);
-                } else {
-                    categories = req.query.categories.split(",").map(Number);
-                }
+                categories = Array.isArray(req.query.categories)
+                    ? req.query.categories.map(Number)
+                    : req.query.categories.split(",").map(Number);
+            }
+
+            let role = "guest";
+            let userId = null;
+
+            if (req.user) {
+                role = await UserService.checkRole(req.user.userId) || "user";
+                userId = req.user.userId;
             }
 
             const favoriteOnly = req.query.favorite === "true";
-            const userId = req.query.user_id ? parseInt(req.query.user_id, 10) : null;
 
             const result = await PostService.getPosts({
                 page,
@@ -34,6 +40,7 @@ const post_controller = {
                 favoriteOnly,
                 userId,
                 status,
+                role,
             });
 
             return res.status(200).json({
@@ -64,7 +71,46 @@ const post_controller = {
             });
         }
     },
-    
+
+    get_myposts: async (req, res) => {
+        try {
+            const userIdFromToken = req.user.userId;
+            const userIdFromParams = req.params.user_id;
+
+            if (parseInt(userIdFromParams, 10) !== userIdFromToken) {
+                return res.status(403).json({
+                    status: "Fail",
+                    type: "FORBIDDEN",
+                    message: "You are not allowed to view posts of another user",
+                });
+            }
+
+            const page = parseInt(req.query.page, 10) || 1;
+            const limit = parseInt(req.query.limit, 10) || 10;
+            const orderBy = req.query.orderBy || "publish_date";
+            const orderDir = (req.query.direction || "DESC").toUpperCase();
+
+            const result = await PostService.getMyPosts({
+                page,
+                limit,
+                orderBy,
+                orderDir,
+                userId: userIdFromToken,
+            });
+
+            return res.status(200).json({
+                status: "Success",
+                result,
+            });
+        } catch (err) {
+            return res.status(500).json({
+                status: "Fail",
+                type: "POST_FETCH_ERROR",
+                message: err.message,
+            });
+        }
+    },
+
     get_comments: async(req, res) =>{
         try {
             const comments = await CommentService.findAllCommentsToPost(req.params.post_id);
@@ -183,7 +229,6 @@ const post_controller = {
     post_ban : async (req ,res) => {
         try {
             const data = {
-                user_id: req.user.userId,
                 post_id: req.params.post_id,
                 ban_status: req.body.ban_status
             }

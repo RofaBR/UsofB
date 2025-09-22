@@ -1,6 +1,5 @@
 import PostModel from "../models/PostModel.js"
 import PostCategoriesModel from "../models/PostCategoriesModel.js"
-import UserModel from "../models/UserModel.js";
 
 const PostService = {
     async getPosts(params) {
@@ -13,6 +12,10 @@ const PostService = {
 
     async getFavorite(user_id) {
         return await PostModel.findFavoritesByUser(user_id)
+    },
+
+    async getMyPosts(params) {
+        return await PostModel.getMyPosts(params);
     },
 
     async findAllWithIds(ids) {
@@ -70,12 +73,7 @@ const PostService = {
         return await PostModel.deleteById(data.post_id);
     },
 
-    async postBan({ user_id, post_id, ban_status }) {
-        const user = await UserModel.findById(user_id);
-
-        if (user.role !== "admin") {
-            throw new Error("Permission denied. Only admin can ban/unban posts.");
-        }
+    async postBan({post_id, ban_status }) {
         return await PostModel.updateById(post_id, { ban_status });
     }
 

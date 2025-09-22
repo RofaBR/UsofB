@@ -58,4 +58,29 @@ export default class TokenValidator {
             }
         };
     }
+
+    static validateOptionalAccess() {
+        return async (req, res, next) => {
+            const authHeader = req.headers["authorization"];
+            if (!authHeader) {
+                req.user = null;
+                return next();
+            }
+
+            const token = authHeader.split(" ")[1];
+            if (!token) {
+                req.user = null; 
+                return next();
+            }
+
+            try {
+                const userData = await TokenService.validateAccessToken(token);
+                req.user = userData || null;
+            } catch {
+                req.user = null;
+            }
+
+            next();
+        };
+    }
 }
