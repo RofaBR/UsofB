@@ -8,9 +8,3 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     expires_at TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
-SET GLOBAL event_scheduler = ON;
-CREATE EVENT IF NOT EXISTS delete_expired_tokens
-ON SCHEDULE EVERY 1 HOUR
-DO
-  DELETE FROM refresh_tokens WHERE expires_at < NOW();

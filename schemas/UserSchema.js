@@ -72,10 +72,13 @@ const PasswordResetSchema = z.object({
     path: ["confirmPassword"],
 });
 
+const UpdateSchema = UserSchema.partial();
+
 export default {
   login: (data) => UserLoginSchema.parse(data),
   register: (data) => UserRegisterSchema.parse(data),
-  update: (data) => UserSelfUpdateSchema.parse(data),
+  update: (data) => UpdateSchema.parse(data),
+  userUpdate: (data) => UserSelfUpdateSchema.parse(data),
   adminUpdate: (data) => AdminUserUpdateSchema.parse(data),
   adminCreate: (data) => AdminCreateUserSchema.parse(data),
   read: (data) => ReadUserSchena.parse(data),

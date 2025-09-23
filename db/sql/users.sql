@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS users (
     rating INT NOT NULL DEFAULT 0,
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     user_token VARCHAR(255) DEFAULT NULL,
-    email_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+    email_confirmed BOOLEAN NOT NULL DEFAULT FALSE
 );
