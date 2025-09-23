@@ -1,0 +1,13 @@
+{
+  "id": "cc6408f8-ec84-41fd-b883-7e02a56edfe8",
+  "meta": {
+    "name": "Usof",
+    "icon": "https://web.kottster.app/icon.png"
+  },
+  "menuPageOrder": [
+    "users",
+    "posts",
+    "categories",
+    "comments"
+  ]
+}

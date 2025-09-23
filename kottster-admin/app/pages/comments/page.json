@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "type": "table",
+  "title": "Comments",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "mysql_db_os9tjt",
+    "fetchStrategy": "databaseTable",
+    "table": "comments",
+    "allowedRoleIdsToDelete": [
+      "584b0b05-f905-4966-9543-7735cfb2100e"
+    ],
+    "allowedRoleIdsToInsert": [
+      "584b0b05-f905-4966-9543-7735cfb2100e"
+    ],
+    "allowedRoleIdsToUpdate": [
+      "584b0b05-f905-4966-9543-7735cfb2100e"
+    ]
+  }
+}
