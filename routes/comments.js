@@ -5,6 +5,7 @@ import comments_controller from "../controllers/comments.js"
 import TokenValidator from "../middlewares/tokenMiddleware.js";
 import likeSchema from "../schemas/likeSchema.js";
 import CommentsSchema from "../schemas/CommentsSchema.js";
+import { requireRole } from "../middlewares/requireRole.js";
 
 const comments_router = express.Router();
 

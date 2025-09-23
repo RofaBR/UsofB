@@ -164,19 +164,40 @@ const post_controller = {
         }
     },
 
-    post_comment : async(req, res) => {
+    post_comment: async (req, res) => {
         try {
             const commentData = {
                 ...req.validated,
                 author_id: req.user.userId,
                 post_id: req.params.post_id
+            };
+
+            const post = await PostService.getPost(commentData.post_id);
+
+            if (!post) {
+                return res.status(404).json({
+                    status: "Fail",
+                    type: "POST_NOT_FOUND",
+                    message: "Post not found"
+                });
             }
+
+            if (post.status !== "active" || post.ban_status === 1) {
+                return res.status(403).json({
+                    status: "Fail",
+                    type: "COMMENT_BLOCKED",
+                    message: "Comments are not allowed under inactive or banned posts"
+                });
+            }
+
             const comment = await CommentService.create(commentData);
+
             return res.status(201).json({
                 status: "Success",
                 commentId: comment.id
             });
-        } catch(err) {
+
+        } catch (err) {
             return res.status(400).json({
                 status: "Fail",
                 type: "COMMENT_CREATE_ERROR",

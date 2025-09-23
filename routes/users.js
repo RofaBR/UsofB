@@ -14,5 +14,6 @@ user_router.get("/api/users/:user_id", TokenValidator.validateAccess(), user_con
 user_router.post("/api/users", TokenValidator.validateAccess(), requireRole("admin"), validator.validate(schema.adminCreate), user_controller.post_create);
 user_router.patch("/api/users/avatar", TokenValidator.validateAccess(), avatarMiddleware, user_controller.patch_uploadAvatar);         
 user_router.patch("/api/users/:user_id", TokenValidator.validateAccess(), validator.validate(schema.update), user_controller.patch_updateUser);
+user_router.patch("/api/admin/users/:user_id", TokenValidator.validateAccess(), requireRole("admin"), validator.validate(schema.adminUpdate), user_controller.patch_updateUser);
 user_router.delete("/api/users/:user_id", TokenValidator.validateAccess(), requireRole("admin"), user_controller.delete_User);
 export default user_router;

@@ -80,28 +80,26 @@ const users_controller = {
         }
     },
     
-    patch_updateUser: async(req, res) => {
+    patch_updateUser: async (req, res) => {
         try {
-            if (req.user.userId != req.params.user_id) {
-                const role = await UserService.checkRole(req.user.userId);
-                if (role === "user") {
-                    return res.status(403).json({
-                        status: "Fail",
-                        type: "UNAUTHORIZED_ACTION",
-                        message: "You cannot update another user's profile"
-                    });
-                }
+            if (req.user.userId != req.params.user_id && req.user.role !== "admin") {
+            return res.status(403).json({
+                status: "Fail",
+                type: "UNAUTHORIZED_ACTION",
+                message: "You cannot update another user's profile"
+            });
             }
-            const updatedUser = await UserService.updateUser(req.params.user_id, req.validated)
+
+            const updatedUser = await UserService.updateUser(req.params.user_id, req.validated);
             return res.status(200).json({
                 status: "Success",
                 user: updatedUser
             });
-        } catch(err) {
+        } catch (err) {
             return res.status(400).json({
-                status: "Fail",
-                type: "USER_UPDATE_ERROR",
-                message: err.message
+            status: "Fail",
+            type: "USER_UPDATE_ERROR",
+            message: err.message
             }); 
         }
     },
