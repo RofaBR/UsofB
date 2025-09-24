@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "type": "table",
+  "title": "Likes",
+  "hideInSidebar": false,
+  "config": {
+    "dataSource": "mysql_db_os9tjt",
+    "fetchStrategy": "databaseTable",
+    "table": "likes"
+  }
+}

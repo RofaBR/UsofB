@@ -8,7 +8,7 @@ export const PostSchema = z.object({
     status: z.enum(["active", "inactive"]).default("active"),
     content: z.string().min(1, "Content is required"),
     categories: z.array(z.number().min(1)).optional(),
-    ban_status: z.number().default(0),
+    ban_status: z.coerce.boolean().default(false),
 });
 
 const PostCreateSchema = PostSchema.pick({
@@ -21,7 +21,12 @@ const PostCreateSchema = PostSchema.pick({
     ban_status: z.boolean().optional(),
 });
 
-const PostUpdateSchema = PostSchema.partial();
+const PostUpdateSchema = z.object({
+    title: z.string().min(3).optional(),
+    content: z.string().min(1).optional(),
+    categories: z.array(z.number().min(1)).optional(),
+});
+
 const ReadPostSchema = PostSchema;
 
 export default {
