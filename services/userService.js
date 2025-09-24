@@ -10,11 +10,10 @@ const UserService = {
         return await UserModel.findById(id)
     },
 
-    async createUser(data) {
-        const { confirmPassword, ...userData } = data;
+    async createUser(userData) {
         const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-        const userId = await UserModel.createUser({
+        const userId = await UserModel.create({
             ...userData,
             password: hashedPassword,
             avatar: userData.avatar || 'def_avatar.png'

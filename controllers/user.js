@@ -6,7 +6,7 @@ const users_controller = {
     get_Users: async (req, res) => {
         try {
             const role = await UserService.checkRole(req.user.userId);
-            const users = await UserService.getAllUsers();
+            let users = await UserService.getAllUsers();
             if (role === "user") {
                 users = users.map(u => ({
                     full_name: u.full_name,
@@ -30,7 +30,7 @@ const users_controller = {
     get_User: async (req, res) => {
         try {
             const role = await UserService.checkRole(req.user.userId);
-            const user = await UserService.getUser(req.params.user_id)
+            let user = await UserService.getUser(req.params.user_id)
             if (role === "user") {
                 user = {
                     full_name: user.full_name,

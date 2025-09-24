@@ -11,18 +11,18 @@ const UserModel = {
         return rows[0] || null;
     },
 
-    async createUser(user) {
-        const [ result ] = await mysql_pool.execute(USER_QUERIES.CREATE, [
-            user.login,
-            user.password,
-            user.full_name,
-            user.email,
-            user.avatar || 'def_avatar.png',
-            user.role,
-            user.user_token
-        ]);
-        return result.insertId
-    }
+    // async createUser(user) {
+    //     const [ result ] = await mysql_pool.execute(USER_QUERIES.CREATE, [
+    //         user.login,
+    //         user.password,
+    //         user.full_name,
+    //         user.email,
+    //         user.avatar || 'def_avatar.png',
+    //         user.role,
+    //         user.user_token
+    //     ]);
+    //     return result.insertId
+    // }
 };
 
 export default UserModel;

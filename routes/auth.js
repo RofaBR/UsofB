@@ -13,5 +13,5 @@ auth_router.post("/api/auth/logout", tokenValidator.validateRefresh(), auth_cont
 auth_router.post("/api/auth/password-reset", validator.validate(schema.email),auth_controller.post_passwordReset);
 auth_router.post("/api/auth/password-reset/:confirm_token", validator.validate(schema.passwordReset),auth_controller.post_confirmReset);
 auth_router.post("/api/auth/email-confirm/:confirm_token", auth_controller.post_confirmEmail);
-auth_router.post("/api/auth/refresh", tokenValidator.validateRefresh(), auth_controller.post_refreshToken);
+auth_router.post("/api/auth/refresh", tokenValidator.validateRefresh(), auth_controller.post_refreshToken); 
 export default auth_router;

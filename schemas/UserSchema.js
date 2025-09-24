@@ -13,6 +13,8 @@ export const UserSchema = z.object({
     email_confirmed: z.number().optional(),
 });
 
+const CreateUserSchema = UserSchema.partial();
+
 const UserLoginSchema = UserSchema.pick({ login: true, password: true });
 const UserRegisterSchema = UserSchema.pick({
     login: true,
@@ -24,7 +26,7 @@ const UserRegisterSchema = UserSchema.pick({
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-});
+}).transform(({ confirmPassword, ...rest }) => rest);
 
 const AdminCreateUserSchema = UserSchema.pick({
     login: true,
@@ -37,18 +39,17 @@ const AdminCreateUserSchema = UserSchema.pick({
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-});
+}).transform(({ confirmPassword, ...rest }) => rest);
 
 const UserSelfUpdateSchema = z.object({
     full_name: z.string().min(1, "Full name is required").optional(),
-    login: z.string().min(3, "Login must be at least 3 characters").optional(),
     avatar: z.string().optional(),
     password: z.string().min(6, "Password must be at least 6 characters").optional(),
     confirmPassword: z.string().min(6, "Confirm Password is required").optional()
 }).refine(
     (data) => {
         if (data.password) {
-        return data.password === data.confirmPassword;
+            return data.password === data.confirmPassword;
         }
         return true;
     },
@@ -84,4 +85,5 @@ export default {
   read: (data) => ReadUserSchena.parse(data),
   email: (data) => EmailSchema.parse(data),
   passwordReset: (data) => PasswordResetSchema.parse(data),
+  create: (data) => CreateUserSchema.parse(data),
 };

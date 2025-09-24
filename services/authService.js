@@ -20,7 +20,7 @@ const AuthService = {
     async register(data) {
         const hashedPassword = await bcrypt.hash(data.password, 10);
 
-        const userId = await UserModel.createUser({
+        const userId = await UserModel.create({
             ...data,
             password: hashedPassword,
             role: "user"
