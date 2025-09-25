@@ -1,4 +1,4 @@
-USOF Backend# USOF Backend
+# USOF Backend
 
 A backend API for a question-and-answer service inspired by StackOverflow.  
 This project allows users to register, log in, create posts, comment, like, and interact with content.  
@@ -53,7 +53,7 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 3. **Configure environment variables:**
     - Copy `.env.example` to `.env` and fill in your database and JWT secrets.
 
-> **ℹImportant:**  
+> **Important:**  
 > Before running the project, make sure to carefully read the `.env.example` file.  
 > Copy it to `.env` and fill in all required environment variables (such as database credentials, JWT secrets, etc.) for the application to work correctly.
 
