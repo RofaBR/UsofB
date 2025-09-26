@@ -27,6 +27,7 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 - **Zod** (validation)
 - **JWT** (authentication)
 - **dotenv** (environment variables)
+- **Kottster** (admin panel UI for backend management)
 
 ---
 
