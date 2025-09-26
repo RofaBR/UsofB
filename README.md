@@ -79,45 +79,63 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 ## API Endpoints
 
 ### Auth
+- `POST /api/auth/register` — Register a new user  
+- `POST /api/auth/login` — Login and receive tokens  
+- `POST /api/auth/logout` — Logout and invalidate refresh token (**authenticated**)  
+- `POST /api/auth/password-reset` — Request password reset  
+- `POST /api/auth/password-reset/:confirm_token` — Confirm password reset  
+- `POST /api/auth/email-confirm/:confirm_token` — Confirm email  
+- `POST /api/auth/refresh` — Refresh access token (**authenticated**)  
 
-- `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Login and receive tokens
-- `POST /api/auth/logout` — Logout and invalidate refresh token
-- `POST /api/auth/password-reset` — Request password reset
-- `POST /api/auth/password-reset/:confirm_token` — Confirm password reset
-- `POST /api/auth/email-confirm/:confirm_token` — Confirm email
-- `POST /api/auth/refresh` — Refresh access token
+---
 
 ### Users
+- `GET /api/users` — List users (**authenticated**)  
+- `GET /api/users/:user_id` — Get user by ID (**authenticated**)  
+- `POST /api/users` — Create user (**admin only**)  
+- `PATCH /api/users/avatar` — Upload/update user avatar (**authenticated**)  
+- `PATCH /api/users/:user_id` — Update user (**authenticated, self only**)  
+- `PATCH /api/admin/users/:user_id` — Update user (**admin only**)  
+- `DELETE /api/admin/users/:user_id` — Delete user (**admin only**)  
 
-- `GET /api/users` — List users (admin only)
-- `GET /api/users/:user_id` — Get user by ID
-- `POST /api/users` — Create user (admin only)
-- `PATCH /api/users/:user_id` — Update user
-- `DELETE /api/admin/users/:user_id` — Delete user (admin only)
+---
 
 ### Posts
+- `GET /api/posts` — List posts (with filters, pagination, sorting, favorites)  
+- `GET /api/posts/:post_id` — Get post by ID  
+- `GET /api/posts/myposts/:user_id` — Get all posts of a specific user (**authenticated**)  
+- `GET /api/posts/:post_id/comments` — Get comments for a post  
+- `GET /api/posts/:post_id/categories` — Get categories for a post  
+- `GET /api/posts/:post_id/like` — Get like/dislike stats for a post  
+- `POST /api/posts` — Create post (**authenticated**)  
+- `POST /api/posts/:post_id/comments` — Add comment to a post (**authenticated**)  
+- `POST /api/posts/:post_id/like` — Like/dislike a post (**authenticated**)  
+- `POST /api/posts/:post_id/favorite` — Favorite a post (**authenticated**)  
+- `POST /api/admin/posts/:post_id/ban` — Ban/unban a post (**admin only**)  
+- `PATCH /api/posts/:post_id` — Update post (**authenticated, only author**)  
+- `DELETE /api/posts/:post_id` — Delete post (**authenticated, only author or admin**)  
+- `DELETE /api/posts/:post_id/like` — Remove like/dislike from a post (**authenticated**)  
+- `DELETE /api/posts/:post_id/favorite` — Remove favorite from a post (**authenticated**)  
 
-- `GET /api/posts` — List posts (with filters, pagination)
-- `GET /api/posts/:post_id` — Get post by ID
-- `POST /api/posts` — Create post
-- `PATCH /api/posts/:post_id` — Update post
-- `DELETE /api/posts/:post_id` — Delete post
-- `POST /api/posts/:post_id/like` — Like/dislike post
-- `POST /api/posts/:post_id/favorite` — Favorite post
+---
 
 ### Comments
+- `GET /api/comments/:comment_id` — Get comment by ID (**authenticated**)  
+- `GET /api/comments/:comment_id/like` — Get like/dislike stats for a comment  
+- `POST /api/comments/:comment_id/like` — Like/dislike a comment (**authenticated**)  
+- `PATCH /api/comments/:comment_id` — Update comment (**authenticated, only author**)  
+- `DELETE /api/comments/:comment_id` — Delete comment (**authenticated, only author or admin**)  
+- `DELETE /api/comments/:comment_id/like` — Remove like/dislike from a comment (**authenticated**)  
 
-- `GET /api/posts/:post_id/comments` — List comments for a post
-- `POST /api/posts/:post_id/comments` — Add comment to a post
-- `PATCH /api/comments/:comment_id` — Edit comment
-- `DELETE /api/comments/:comment_id` — Delete comment
-- `POST /api/comments/:comment_id/like` — Like/dislike comment
+---
 
 ### Categories
-
-- `GET /api/categories` — List categories
-- `POST /api/categories` — Create category (admin only)
+- `GET /api/categories` — List categories (**authenticated**)  
+- `GET /api/admin/categories/:category_id` — Get category by ID (**admin only**)  
+- `GET /api/admin/categories/:category_id/posts` — List posts in a category (**admin only**)  
+- `POST /api/admin/categories` — Create category (**admin only**)  
+- `PATCH /api/admin/categories/:category_id` — Update category (**admin only**)  
+- `DELETE /api/admin/categories/:category_id` — Delete category (**admin only**)  
 
 ---
 
