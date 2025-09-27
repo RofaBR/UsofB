@@ -167,18 +167,23 @@ Composite PK: (post_id, category_id) ensures a post can’t be linked twice to t
 
 ### `likes`
 
-| Field       | Type                   | Null | Key | Default           | Extra          | Description                                |
-|-------------|------------------------|------|-----|-------------------|----------------|--------------------------------------------|
-| id          | int                    | NO   | PRI | auto_increment    |                | Unique like ID                             |
-| author_id   | int                    | NO   | MUL | NULL              |                | FK → users.id                              |
-| target_type | enum('post','comment') | NO   |     | NULL              |                | Type of target (post or comment)           |
-| target_id   | int                    | NO   |     | NULL              |                | ID of the target entity                    |
-| type        | enum('like','dislike') | NO   |     | NULL              |                | Reaction type                              |
-| created_at  | timestamp              | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GEN    | Date of reaction                           |
-
-Unique constraint: `(author_id, target_type, target_id)` ensures one reaction per user per target.
+| Field      | Type                   | Null | Key | Default           | Extra             | Description                                                                 |
+|------------|------------------------|------|-----|-------------------|-------------------|-----------------------------------------------------------------------------|
+| id         | int                    | NO   | PRI | NULL              | auto_increment    | Unique like ID                                                              |
+| author_id  | int                    | NO   | MUL | NULL              |                   | FK → `users.id` (the user who reacted)                                      |
+| post_id    | int                    | YES  | MUL | NULL              |                   | FK → `posts.id` (nullable, set if the reaction is on a post)                |
+| comment_id | int                    | YES  | MUL | NULL              |                   | FK → `comments.id` (nullable, set if the reaction is on a comment)          |
+| type       | enum('like','dislike') | NO   |     | NULL              |                   | Reaction type                                                               |
+| created_at | timestamp              | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED | Date and time when the reaction was created                                 |
 
 ---
+
+#### Constraints
+- One of **`post_id`** or **`comment_id`** must be non-NULL (reaction belongs to either a post or a comment, not both).  
+- Unique constraint: **(author_id, post_id)** → one reaction per user per post.  
+- Unique constraint: **(author_id, comment_id)** → one reaction per user per comment.  
+- **ON DELETE CASCADE** recommended on both `post_id` and `comment_id` FKs so likes are removed when their target is deleted.
+
 
 ### `favorite`
 

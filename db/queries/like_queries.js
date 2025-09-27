@@ -1,3 +1,4 @@
 export const LIKE_QUERIES = {
-    DELETE: `DELETE FROM likes WHERE author_id = ? AND target_id = ? AND target_type = ?`,
+    DELETE_BY_POST: `DELETE FROM likes WHERE author_id = ? AND post_id = ?`,
+    DELETE_BY_COMMENT: `DELETE FROM likes WHERE author_id = ? AND comment_id = ?`,
 };

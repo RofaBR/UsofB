@@ -144,13 +144,9 @@ const post_controller = {
         } 
     },
 
-    get_likes : async(req, res) => {
+    get_likes: async (req, res) => {
         try {
-            const likeData = {
-                target_id: req.params.post_id,
-                target_type: "post"
-            }
-            const likes = await LikesService.getAllLikes(likeData);
+            const likes = await LikesService.getAllLikes({ post_id: req.params.post_id });
             return res.status(200).json({
                 status: "Success",
                 likes
@@ -226,18 +222,16 @@ const post_controller = {
         }
     },
 
-    post_like : async (req, res) => {
+    post_like: async (req, res) => {
         try {
             const likeData = {
                 ...req.validated,
                 author_id: req.user.userId,
-                target_type: "post",
-                target_id: req.params.post_id
+                post_id: Number(req.params.post_id),
+                comment_id: null
             };
-            await LikesService.postLike(likeData)
-            return res.status(201).json({
-                status: "Success",
-            });
+            await LikesService.postLike(likeData);
+            return res.status(201).json({ status: "Success" });
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
@@ -304,14 +298,13 @@ const post_controller = {
         }
     },
 
-    delete_like : async (req, res) => {
+    delete_like: async (req, res) => {
         try {
-            const likeData = {
+            await LikesService.deleteLike({
                 author_id: req.user.userId,
-                target_type: "post",
-                target_id: req.params.post_id
-            }
-            await LikesService.deleteLike(likeData);
+                post_id: Number(req.params.post_id),
+                comment_id: null
+            });
             return res.status(204).send();
         } catch(err) {
             return res.status(400).json({

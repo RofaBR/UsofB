@@ -97,7 +97,7 @@ const PostModel = {
         }
 
         if (this._isLikeBasedOrdering(orderBy)) {
-            joins.push(`LEFT JOIN likes l ON l.target_id = p.id AND l.target_type = 'post'`);
+            joins.push(`LEFT JOIN likes l ON l.post_id = p.id`);
             selectColumns.push(`
                 SUM(CASE WHEN l.type = 'like' THEN 1 ELSE 0 END) AS like_count,
                 SUM(CASE WHEN l.type = 'dislike' THEN 1 ELSE 0 END) AS dislike_count,
