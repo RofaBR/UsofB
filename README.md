@@ -61,9 +61,9 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 4. **Set up the database:**
     - Make sure your `.env` file contains the correct database credentials (host, user, password).
     - Run the following command to create all tables and relations:
-      ```bash
-      npm run db:init
-      ```
+    ```bash
+    npm run db:init
+    ```
     - This will execute all SQL files in `/db/sql/` and initialize your database schema.
     If you want to drop and recreate all tables (for example, during development or testing), you can use the reset command:
     ```bash
