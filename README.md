@@ -156,5 +156,3 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 /middlewares/      # Express middlewares
 ```
 [📄 **Full Documentation**](./docs/DOCUMENTATION.md)
-
-```
