@@ -35,7 +35,7 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 
 ### Prerequisites
 
-- Node.js (v18+ recommended)
+- Node.js (v20+ recommended)
 - MySQL server
 
 ### Installation
@@ -59,14 +59,19 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 > Copy it to `.env` and fill in all required environment variables (such as database credentials, JWT secrets, etc.) for the application to work correctly.
 
 4. **Set up the database:**
-    - Import the SQL files in `/db/sql/` into your MySQL database:
+    - Make sure your `.env` file contains the correct database credentials (host, user, password).
+    - Run the following command to create all tables and relations:
       ```bash
-      mysql -u youruser -p < db/sql/users.sql
-      mysql -u youruser -p < db/sql/post.sql
-      mysql -u youruser -p < db/sql/categories.sql
-      mysql -u youruser -p < db/sql/like.sql
-      # ...and any others
+      npm run db:init
       ```
+    - This will execute all SQL files in `/db/sql/` and initialize your database schema.
+    If you want to drop and recreate all tables (for example, during development or testing), you can use the reset command:
+    ```bash
+    npm run db:reset
+    ```
+
+    This will remove all existing tables and data, then re-run all SQL migrations to set up a fresh database schema.  
+    **Warning:** This will erase all data in your database!
 
 5. **Start the server:**
     ```bash
@@ -76,7 +81,7 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 
 ---
 
-## API Endpoints
+## API EndpointsЦ
 
 ### Auth
 - `POST /api/auth/register` — Register a new user  
