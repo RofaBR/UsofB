@@ -81,7 +81,23 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 
 ---
 
-## API EndpointsЦ
+
+## Running the Admin Panel (Kottster)
+
+The project includes an admin panel UI for backend management, located in the `kottster-admin` directory.
+
+To start the admin panel in development mode, run:
+
+```bash
+npm run kottster
+```
+
+This will install dependencies (if needed) and launch the admin panel.  
+By default, it will be available at [http://localhost:5173](http://localhost:5173) (or the port specified in the admin panel’s configuration).
+
+---
+
+## API Endpoints
 
 ### Auth
 - `POST /api/auth/register` — Register a new user  

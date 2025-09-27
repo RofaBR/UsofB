@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node app.js",
     "db:init": "node ./db/init.js",
-    "db:reset": "node ./db/init.js reset"
+    "db:reset": "node ./db/init.js reset",
+    "kottster": "cd kottster-admin && npm run dev"
   },
   "repository": {
     "type": "git",
