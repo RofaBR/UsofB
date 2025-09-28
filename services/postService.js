@@ -1,5 +1,7 @@
 import PostModel from "../models/PostModel.js"
 import PostCategoriesModel from "../models/PostCategoriesModel.js"
+import PostImagesModel from "../models/PostImagesModel.js"
+import NotificationService from "./NotificationService.js"
 
 const PostService = {
     async getPosts(params) {
@@ -7,7 +9,11 @@ const PostService = {
     },
 
     async getPost(post_id) {
-        return await PostModel.findById(post_id);
+        const post = await PostModel.findById(post_id);
+        if (post) {
+            post.images = await PostImagesModel.findByPostId(post_id);
+        }
+        return post;
     },
 
     async getFavorite(user_id) {
@@ -25,19 +31,48 @@ const PostService = {
 
     async createPost(data) {
         const post = await PostModel.create({
-            author_id: data.author_id,
-            title: data.title,
-            content: data.content,
-            status: data.status || "active"
+        author_id: data.author_id,
+        title: data.title,
+        content: data.content,
+        status: data.status || "active"
         });
 
         if (data.categories && data.categories.length > 0) {
-            for (const categoryId of data.categories) {
-                await PostCategoriesModel.create(post.id, categoryId);
-            }           
+        for (const categoryId of data.categories) {
+            await PostCategoriesModel.create(post.id, categoryId);
+        }
         }
 
         return { id: post.id };
+    },
+
+    async addImages(postId, imagePaths) {
+        const createdImages = [];
+        for (const path of imagePaths) {
+            const image = await PostImagesModel.create(postId, path);
+            createdImages.push(image);
+        }
+        return createdImages;
+    },
+
+    async getPostImages(postId) {
+        return await PostImagesModel.findByPostId(postId);
+    },
+
+    async deletePostImage(imageId, userId) {
+        const image = await PostImagesModel.findById(imageId);
+        if (!image) {
+            throw new Error("Image not found");
+        }
+        const post = await PostModel.findById(image.post_id);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+        if (post.author_id !== userId) {
+            throw new Error("You are not allowed to delete this image");
+        }
+        await PostImagesModel.deleteById(imageId);
+        return { success: true };
     },
     
     async updatePost(data) {
@@ -59,6 +94,13 @@ const PostService = {
             content: data.content,
             status: data.status
         });
+
+        try {
+            await NotificationService.notifySubscribersOfPostUpdate(data.post_id, data.author_id);
+        } catch (error) {
+            console.error("Failed to create notifications for post update:", error.message);
+        }
+
         return { newPostData };
     },
 

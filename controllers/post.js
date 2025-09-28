@@ -4,6 +4,7 @@ import LikesService from "../services/likesService.js";
 import CategoriesService from "../services/categoriesService.js";
 import FavoriteService from "../services/favoriteService.js"
 import UserService from "../services/userService.js";
+import SubscribeService from "../services/subscribeService.js";
 
 const post_controller = {
     get_posts: async (req, res) => {
@@ -209,6 +210,10 @@ const post_controller = {
                 author_id: req.user.userId
             };
             const post = await PostService.createPost(postData);
+            if (req.files && req.files.length > 0) {
+                const imagePaths = req.files.map(file => file.path.replace("public/", ""));
+                await PostService.addImages(post.id, imagePaths);
+            }
             res.status(201).json({
                 status: "Success",
                 post: post.id
@@ -279,6 +284,25 @@ const post_controller = {
         }
     },
 
+    post_subscribe : async (req, res) => {
+        try {
+            const subscribeData = {
+                user_id: req.user.userId,
+                post_id: Number(req.params.post_id) 
+            }
+            await SubscribeService.postSubscribe(subscribeData);   
+            return res.status(201).json({
+                status: "Success"
+            })
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "POST_SUBSCRIBE_ERROR",
+                message: err.message
+            })
+        }
+    },
+
     delete_favorite : async (req, res) => {
         try {
             const favoriteData = {
@@ -315,6 +339,22 @@ const post_controller = {
         }
     },
 
+    delete_subscribe: async (req, res) => {
+        try {
+            await SubscribeService.deleteSubscribe({
+                user_id:  req.user.userId,
+                post_id: req.params.post_id
+            })
+            return res.status(204).send();
+        } catch (err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "POST_LIKE_DELETE_ERROR",
+                message: err.message
+            });
+        }
+    },
+
     delete_post : async (req, res) => {
         try {
             const postData = {
@@ -340,7 +380,7 @@ const post_controller = {
                 ...req.validated,
             }
             const result = await PostService.updatePost(postData);
-
+            // await NotificationService.makeNotf();
             return res.status(200).json({
                 status: "success",
                 post: result,

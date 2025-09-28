@@ -8,13 +8,13 @@
     "fetchStrategy": "databaseTable",
     "table": "likes",
     "allowedRoleIdsToDelete": [
-      "584b0b05-f905-4966-9543-7735cfb2100e"
+      "52da8f1b-7c1e-4838-9473-0d7ad2f84b3a"
     ],
     "allowedRoleIdsToInsert": [
-      "584b0b05-f905-4966-9543-7735cfb2100e"
+      "52da8f1b-7c1e-4838-9473-0d7ad2f84b3a"
     ],
     "allowedRoleIdsToUpdate": [
-      "584b0b05-f905-4966-9543-7735cfb2100e"
+      "52da8f1b-7c1e-4838-9473-0d7ad2f84b3a"
     ]
   }
 }

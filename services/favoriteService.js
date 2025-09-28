@@ -6,12 +6,12 @@ const FavoriteService = {
     },
 
     async deleteFavorite({ user_id, post_id }) {
-        const posts = await FavoriteModel.find({ user_id, post_id});
-        if (!posts.length) {
+        const favorite = await FavoriteModel.findByUserAndPost(user_id, post_id);
+        if (!favorite) {
             throw new Error("Favorite post not found for this user.");
         }
 
-        await FavoriteModel.deleteFavorite(post_id);
+        await FavoriteModel.deleteFavorite({ user_id, post_id });
     }
 };
 
