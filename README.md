@@ -11,6 +11,9 @@ Admins can manage users, posts, categories, and comments via admin-only endpoint
 - **User Authentication:** Register, login, JWT-based authentication, password reset, email confirmation.
 - **User Roles:** Regular users and admins with role-based access control.
 - **Posts:** Create, read, update, delete, like/dislike, favorite, and ban posts.
+- **Image Uploads:** Upload and manage images for posts using file system storage.
+- **Post Subscriptions:** Subscribe to posts and receive notifications when they're updated.
+- **Notifications:** Real-time notification system for post updates and subscriptions.
 - **Comments:** Add, edit, delete, and like/dislike comments.
 - **Categories:** Organize posts by categories.
 - **Likes & Favorites:** Like/dislike posts and comments, favorite posts.
@@ -122,21 +125,24 @@ By default, it will be available at [http://localhost:5173](http://localhost:517
 ---
 
 ### Posts
-- `GET /api/posts` — List posts (with filters, pagination, sorting, favorites)  
-- `GET /api/posts/:post_id` — Get post by ID  
-- `GET /api/posts/myposts/:user_id` — Get all posts of a specific user (**authenticated**)  
-- `GET /api/posts/:post_id/comments` — Get comments for a post  
-- `GET /api/posts/:post_id/categories` — Get categories for a post  
-- `GET /api/posts/:post_id/like` — Get like/dislike stats for a post  
-- `POST /api/posts` — Create post (**authenticated**)  
-- `POST /api/posts/:post_id/comments` — Add comment to a post (**authenticated**)  
-- `POST /api/posts/:post_id/like` — Like/dislike a post (**authenticated**)  
-- `POST /api/posts/:post_id/favorite` — Favorite a post (**authenticated**)  
-- `POST /api/admin/posts/:post_id/ban` — Ban/unban a post (**admin only**)  
-- `PATCH /api/posts/:post_id` — Update post (**authenticated, only author**)  
-- `DELETE /api/posts/:post_id` — Delete post (**authenticated, only author or admin**)  
-- `DELETE /api/posts/:post_id/like` — Remove like/dislike from a post (**authenticated**)  
-- `DELETE /api/posts/:post_id/favorite` — Remove favorite from a post (**authenticated**)  
+- `GET /api/posts` — List posts (with filters, pagination, sorting, favorites)
+- `GET /api/posts/:post_id` — Get post by ID (includes images)
+- `GET /api/posts/myposts/:user_id` — Get all posts of a specific user (**authenticated**)
+- `GET /api/posts/:post_id/comments` — Get comments for a post
+- `GET /api/posts/:post_id/categories` — Get categories for a post
+- `GET /api/posts/:post_id/like` — Get like/dislike stats for a post
+- `GET /api/posts/:post_id/images` — Get images for a post
+- `POST /api/posts` — Create post with optional image uploads (**authenticated**, multipart/form-data)
+- `POST /api/posts/:post_id/comments` — Add comment to a post (**authenticated**)
+- `POST /api/posts/:post_id/like` — Like/dislike a post (**authenticated**)
+- `POST /api/posts/:post_id/favorite` — Favorite a post (**authenticated**)
+- `POST /api/posts/:post_id/subscribe` — Subscribe to post updates (**authenticated**)
+- `POST /api/admin/posts/:post_id/ban` — Ban/unban a post (**admin only**)
+- `PATCH /api/posts/:post_id` — Update post with optional image replacement (**authenticated, only author**, multipart/form-data)
+- `DELETE /api/posts/:post_id` — Delete post (**authenticated, only author or admin**)
+- `DELETE /api/posts/:post_id/like` — Remove like/dislike from a post (**authenticated**)
+- `DELETE /api/posts/:post_id/favorite` — Remove favorite from a post (**authenticated**)
+- `DELETE /api/posts/:post_id/subscribe` — Unsubscribe from post updates (**authenticated**)  
 
 ---
 
@@ -151,12 +157,19 @@ By default, it will be available at [http://localhost:5173](http://localhost:517
 ---
 
 ### Categories
-- `GET /api/categories` — List categories (**authenticated**)  
-- `GET /api/admin/categories/:category_id` — Get category by ID (**admin only**)  
-- `GET /api/admin/categories/:category_id/posts` — List posts in a category (**admin only**)  
-- `POST /api/admin/categories` — Create category (**admin only**)  
-- `PATCH /api/admin/categories/:category_id` — Update category (**admin only**)  
-- `DELETE /api/admin/categories/:category_id` — Delete category (**admin only**)  
+- `GET /api/categories` — List categories (**authenticated**)
+- `GET /api/admin/categories/:category_id` — Get category by ID (**admin only**)
+- `GET /api/admin/categories/:category_id/posts` — List posts in a category (**admin only**)
+- `POST /api/admin/categories` — Create category (**admin only**)
+- `PATCH /api/admin/categories/:category_id` — Update category (**admin only**)
+- `DELETE /api/admin/categories/:category_id` — Delete category (**admin only**)
+
+---
+
+### Notifications
+- `GET /api/notifications` — Get user's notifications (**authenticated**)
+- `DELETE /api/notifications/posts/:post_id` — Delete specific notification (**authenticated**)
+- `DELETE /api/notifications` — Delete all user notifications (**authenticated**)
 
 ---
 

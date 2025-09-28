@@ -18,10 +18,3 @@ CREATE TABLE IF NOT EXISTS post_categories (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
-
-CREATE TABLE IF NOT EXISTS post_images (
-    id int AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
-);

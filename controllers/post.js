@@ -5,6 +5,7 @@ import CategoriesService from "../services/categoriesService.js";
 import FavoriteService from "../services/favoriteService.js"
 import UserService from "../services/userService.js";
 import SubscribeService from "../services/subscribeService.js";
+import PostImageService from "../services/postImageService.js";
 
 const post_controller = {
     get_posts: async (req, res) => {
@@ -157,7 +158,23 @@ const post_controller = {
                 status: "Fail",
                 type: "POST_LIKES_FETCH_ERROR",
                 message: err.message
-            }); 
+            });
+        }
+    },
+
+    get_post_images: async (req, res) => {
+        try {
+            const images = await PostService.getPostImages(req.params.post_id);
+            return res.status(200).json({
+                status: "Success",
+                images
+            });
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "POST_IMAGES_FETCH_ERROR",
+                message: err.message
+            });
         }
     },
 
@@ -204,21 +221,19 @@ const post_controller = {
     },
 
     post_createPost : async (req, res) => {
+        const uploadedImages = req.uploadedImages || [];
         try {
             const postData = {
                 ...req.validated,
                 author_id: req.user.userId
             };
-            const post = await PostService.createPost(postData);
-            if (req.files && req.files.length > 0) {
-                const imagePaths = req.files.map(file => file.path.replace("public/", ""));
-                await PostService.addImages(post.id, imagePaths);
-            }
+            const post = await PostService.createPost(postData, uploadedImages);
             res.status(201).json({
                 status: "Success",
-                post: post.id
+                post: post
             });
         } catch(err) {
+            PostImageService.cleanupTempFiles(uploadedImages);
             return res.status(400).json({
                 status: "Fail",
                 type: "POST_CREATE_ERROR",
@@ -379,8 +394,8 @@ const post_controller = {
                 author_id: req.user.userId,
                 ...req.validated,
             }
-            const result = await PostService.updatePost(postData);
-            // await NotificationService.makeNotf();
+            const uploadedImages = req.uploadedImages || [];
+            const result = await PostService.updatePost(postData, uploadedImages);
             return res.status(200).json({
                 status: "success",
                 post: result,
@@ -388,7 +403,7 @@ const post_controller = {
         } catch(err) {
             return res.status(400).json({
                 status: "Fail",
-                type: "EPOST_UPDATE_ERROR",
+                type: "POST_UPDATE_ERROR",
                 message: err.message
             });
         }

@@ -1,7 +1,7 @@
 import PostModel from "../models/PostModel.js"
 import PostCategoriesModel from "../models/PostCategoriesModel.js"
-import PostImagesModel from "../models/PostImagesModel.js"
 import NotificationService from "./NotificationService.js"
+import PostImageService from "./postImageService.js"
 
 const PostService = {
     async getPosts(params) {
@@ -11,7 +11,7 @@ const PostService = {
     async getPost(post_id) {
         const post = await PostModel.findById(post_id);
         if (post) {
-            post.images = await PostImagesModel.findByPostId(post_id);
+            post.images = PostImageService.getPostImages(post_id);
         }
         return post;
     },
@@ -29,7 +29,7 @@ const PostService = {
         return posts
     },
 
-    async createPost(data) {
+    async createPost(data, uploadedImages = []) {
         const post = await PostModel.create({
         author_id: data.author_id,
         title: data.title,
@@ -43,39 +43,33 @@ const PostService = {
         }
         }
 
-        return { id: post.id };
-    },
-
-    async addImages(postId, imagePaths) {
-        const createdImages = [];
-        for (const path of imagePaths) {
-            const image = await PostImagesModel.create(postId, path);
-            createdImages.push(image);
+        let savedImages = [];
+        if (uploadedImages && uploadedImages.length > 0) {
+            savedImages = PostImageService.moveUploadedImages(post.id, uploadedImages);
         }
-        return createdImages;
+
+        return {
+            id: post.id,
+            images: savedImages
+        };
     },
 
     async getPostImages(postId) {
-        return await PostImagesModel.findByPostId(postId);
+        return PostImageService.getPostImages(postId);
     },
 
-    async deletePostImage(imageId, userId) {
-        const image = await PostImagesModel.findById(imageId);
-        if (!image) {
-            throw new Error("Image not found");
-        }
-        const post = await PostModel.findById(image.post_id);
+    async clearPostImages(postId, userId) {
+        const post = await PostModel.findById(postId);
         if (!post) {
             throw new Error("Post not found");
         }
         if (post.author_id !== userId) {
-            throw new Error("You are not allowed to delete this image");
+            throw new Error("You are not allowed to manage images for this post");
         }
-        await PostImagesModel.deleteById(imageId);
-        return { success: true };
+        return PostImageService.clearPostImages(postId);
     },
     
-    async updatePost(data) {
+    async updatePost(data, uploadedImages = []) {
         const post = await PostModel.findById(data.post_id);
         if (!post) {
             throw new Error("Post not found");
@@ -95,13 +89,22 @@ const PostService = {
             status: data.status
         });
 
+        let updatedImages = [];
+        if (uploadedImages && uploadedImages.length > 0) {
+            PostImageService.clearPostImages(data.post_id);
+            updatedImages = PostImageService.moveUploadedImages(data.post_id, uploadedImages);
+        }
+
         try {
             await NotificationService.notifySubscribersOfPostUpdate(data.post_id, data.author_id);
         } catch (error) {
             console.error("Failed to create notifications for post update:", error.message);
         }
 
-        return { newPostData };
+        return {
+            newPostData,
+            images: updatedImages.length > 0 ? updatedImages : PostImageService.getPostImages(data.post_id)
+        };
     },
 
     async deletePost(data) {
@@ -112,6 +115,13 @@ const PostService = {
         if (post.author_id !== data.author_id) {
             throw new Error("You are not allowed to delete this post");
         }
+
+        try {
+            PostImageService.deletePostImageDirectory(data.post_id);
+        } catch (error) {
+            console.error(`Failed to delete images for post ${data.post_id}:`, error.message);
+        }
+
         return await PostModel.deleteById(data.post_id);
     },
 

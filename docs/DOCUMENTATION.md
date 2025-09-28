@@ -23,9 +23,15 @@
 - Integrated **Zod** for request validation and improved error handling.  
 
 ### Stage 5: Admin & User Experience
-- Added **admin-only endpoints** for managing users, posts, and categories.  
-- Enhanced validation, error messages, and overall security.  
-- Implemented **password reset** and **email confirmation** workflows.  
+- Added **admin-only endpoints** for managing users, posts, and categories.
+- Enhanced validation, error messages, and overall security.
+- Implemented **password reset** and **email confirmation** workflows.
+
+### Stage 6: Advanced Features & Media Support
+- Implemented **post subscription system** allowing users to follow post updates.
+- Created **notification system** for alerting subscribers when posts are updated.
+- Added **file system-based image upload** for posts with multipart/form-data support.
+- Enhanced post management with automatic image cleanup and directory structure.
 
 ---
 
@@ -55,12 +61,13 @@
    - Static file serving
 
 #### Routing
-- Register API routes via modular routers:  
-  - **/api/auth** → authentication & tokens  
-  - **/api/users** → user profiles & management  
-  - **/api/posts** → posts CRUD, likes, favorites  
-  - **/api/comments** → comments CRUD & likes  
-  - **/api/categories** → category management  
+- Register API routes via modular routers:
+  - **/api/auth** → authentication & tokens
+  - **/api/users** → user profiles & management
+  - **/api/posts** → posts CRUD, likes, favorites, images, subscriptions
+  - **/api/comments** → comments CRUD & likes
+  - **/api/categories** → category management
+  - **/api/notifications** → notification management
 - Protect routes with **token validator**, **role checker**, and **request validation**.
 
 #### Request Handling
@@ -79,10 +86,13 @@
 - All errors are caught in controllers and reported with `status`, `type`, and `message`.
 
 #### Business Logic
-- **Posts**: create, update, delete, like/dislike, favorite, ban, filter, paginate.  
-- **Comments**: add, edit, delete, like/dislike.  
-- **Categories**: organize posts; admins can create/update/delete categories.  
-- **Users**: profile management, avatar upload, password reset, email confirmation.  
+- **Posts**: create, update, delete, like/dislike, favorite, ban, filter, paginate, image upload/management.
+- **Subscriptions**: subscribe/unsubscribe to posts for update notifications.
+- **Notifications**: automatic creation when subscribed posts are updated, simple deletion-based management.
+- **Images**: file system storage, automatic cleanup, multipart upload handling.
+- **Comments**: add, edit, delete, like/dislike.
+- **Categories**: organize posts; admins can create/update/delete categories.
+- **Users**: profile management, avatar upload, password reset, email confirmation.
 - **Admins**: manage all users, posts, and categories. 
 
 #### Response
@@ -98,7 +108,7 @@ The database schema is visualized below:
 
 ![Database Diagram](./db-diagram.png)
 
-The application uses a **MySQL relational database** consisting of 8 tables. 
+The application uses a **MySQL relational database** consisting of 10 tables.
 Their structure and purpose are described below.
 
 ### `users`
@@ -208,6 +218,45 @@ Composite PK: (user_id, post_id) ensures a user can only favorite a post once.
 
 ---
 
+### `subscription`
+
+| Field   | Type | Null | Key | Default | Extra | Description               |
+|---------|------|------|-----|---------|-------|---------------------------|
+| user_id | int  | NO   | PRI | NULL    |       | FK → users.id             |
+| post_id | int  | NO   | PRI | NULL    |       | FK → posts.id             |
+
+Composite PK: (user_id, post_id) ensures a user can only subscribe to a post once.
+
+---
+
+### `notification`
+
+| Field   | Type | Null | Key | Default | Extra | Description               |
+|---------|------|------|-----|---------|-------|---------------------------|
+| user_id | int  | NO   | PRI | NULL    |       | FK → users.id             |
+| post_id | int  | NO   | PRI | NULL    |       | FK → posts.id             |
+
+Composite PK: (user_id, post_id) ensures one notification per user per post.
+Notifications are created when subscribed posts are updated and deleted when viewed.
+
+---
+
+## New Features
+
+### Image Upload System
+- **File Storage**: Images stored in filesystem at `public/uploads/posts/{post_id}/`
+- **Upload Limits**: Max 10 images per post, 5MB per image
+- **Supported Formats**: JPG, JPEG, PNG, GIF, BMP, WEBP
+- **Auto Cleanup**: Images automatically deleted when posts are removed
+- **Replacement**: Updating posts replaces all existing images
+
+### Notification System
+- **Post Subscriptions**: Users can subscribe to posts for update notifications
+- **Auto Notifications**: Subscribers automatically notified when posts are updated
+- **Simple Management**: Notifications deleted after viewing (no read/unread states)
+- **Author Exclusion**: Post authors don't receive notifications for their own updates
+
+---
 
 ## Author
 - **Name:** Rostyslav Bryhynets  
