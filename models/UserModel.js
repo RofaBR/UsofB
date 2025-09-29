@@ -11,6 +11,16 @@ const UserModel = {
         return rows[0] || null;
     },
 
+    async calculateUserRating(userId) {
+        const [rows] = await mysql_pool.execute(USER_QUERIES.CALCULATE_USER_RATING, [userId, userId]);
+        return rows[0]?.total_rating || 0;
+    },
+
+    async updateRating(userId, rating) {
+        await mysql_pool.execute(USER_QUERIES.UPDATE_RATING, [rating, userId]);
+        return true;
+    },
+
     // async createUser(user) {
     //     const [ result ] = await mysql_pool.execute(USER_QUERIES.CREATE, [
     //         user.login,

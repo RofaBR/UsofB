@@ -3,11 +3,16 @@ import bcrypt from "bcrypt";
 
 const UserService = {
     async getAllUsers() {
+        const users = await UserModel.find();
+        for (const user of users) {
+            await this.calculateAndUpdateRating(user.id);
+        }
         return await UserModel.find();
     },
 
     async getUser(id) {
-        return await UserModel.findById(id)
+        await this.calculateAndUpdateRating(id);
+        return await UserModel.findById(id);
     },
 
     async createUser(userData) {
@@ -37,6 +42,12 @@ const UserService = {
     async checkRole(id) {
         const user = await UserModel.findById(id);
         return user?.role || null;
+    },
+
+    async calculateAndUpdateRating(userId) {
+        const rating = await UserModel.calculateUserRating(userId);
+        await UserModel.updateRating(userId, rating);
+        return rating;
     }
 }
 
