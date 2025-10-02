@@ -31,7 +31,7 @@ export default class TokenValidator {
 
     static validateRefresh() {
         return async (req, res, next) => {
-            const { refreshToken } = req.body;
+            const refreshToken = req.cookies.refreshToken;
             if (!refreshToken) {
                 return authError(res, "Refresh token missing");
             }

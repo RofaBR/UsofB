@@ -9,12 +9,19 @@ const auth_controller = {
 
             const tokens = TokenService.generateTokens({ userId: user.id });
             await TokenService.saveRefreshToken(user.id, tokens.refreshToken);
-            
+
+            res.cookie('refreshToken', tokens.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+
             const {password, ...safeUser} = user
             return res.status(200).json({
                 status: "Success",
                 user: safeUser,
-                tokens
+                accessToken: tokens.accessToken
             });
         } catch(err) {
             return res.status(400).json({
@@ -56,6 +63,7 @@ const auth_controller = {
     post_logout : async (req, res) => {
         try {
             await TokenService.removeToken(req.token_hash)
+            res.clearCookie('refreshToken');
             return res.status(204).send();
         } catch(err) {
             return res.status(400).json({
@@ -135,7 +143,8 @@ const auth_controller = {
             const accessToken = TokenService.generateAccessToken({ userId });
             return res.status(200).json({
                 status: "Success",
-                accessToken
+                accessToken,
+                user: req.user
             });
         } catch(err) {
             return res.status(401).json({
