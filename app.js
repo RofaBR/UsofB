@@ -2,8 +2,8 @@ import express from "express"
 import { createServer } from "http"
 import cookieParser from "cookie-parser";
 import cors from "cors";
-// import dotenv from "dotenv";
-// dotenv.config();
+import dotenv from "dotenv";
+dotenv.config();
 
 import auth_router from "./routes/auth.js";
 import categories_router from "./routes/categories.js";

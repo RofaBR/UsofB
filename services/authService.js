@@ -42,6 +42,10 @@ const AuthService = {
     },
 
     async resetPassword(token, newPassword) {
+        // Validate token format and length (should be 64 hex characters)
+        if (!token || token.length !== 64 || !/^[a-f0-9]{64}$/i.test(token)) {
+            throw new Error("Invalid token format");
+        }
 
         const users = await UserModel.find({ user_token: token });
         if (!users.length) throw new Error("Invalid or expired token");
@@ -57,6 +61,11 @@ const AuthService = {
     },
 
     async confirmEmail(token) {
+        // Validate token format and length (should be 64 hex characters)
+        if (!token || token.length !== 64 || !/^[a-f0-9]{64}$/i.test(token)) {
+            throw new Error("Invalid token format");
+        }
+
         const users = await UserModel.find({ user_token: token });
         if (!users.length) throw new Error("Invalid or expired token");
 

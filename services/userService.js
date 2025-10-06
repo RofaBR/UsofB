@@ -21,7 +21,7 @@ const UserService = {
         const userId = await UserModel.create({
             ...userData,
             password: hashedPassword,
-            avatar: userData.avatar || 'def_avatar.png'
+            avatar: userData.avatar || '/uploads/avatars/def_avatar.png'
         });
 
         return userId;

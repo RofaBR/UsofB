@@ -43,7 +43,7 @@ const auth_controller = {
             await SenderService.sendEmail({
                 to: req.validated.email,
                 subject: "Mail confirmation",
-                html: `<p>Click to confirm: <a href="http://localhost:8080/api/auth/email-confirm/${token}">Confirm mail</a></p>`,
+                html: `<p>Click to confirm: <a href="${process.env.FRONTEND_URL}/auth/confirm-email/${token}">Confirm mail</a></p>`,
             })
 
             return res.status(201).json({
@@ -89,7 +89,7 @@ const auth_controller = {
             await SenderService.sendEmail({
                 to: req.body.email,
                 subject: "Password Reset",
-                html: `<p>Click to reset: <a href="http://localhost:8080/api/auth/password-reset/${token}">Reset Password</a></p>`,
+                html: `<p>Click to reset: <a href="${process.env.FRONTEND_URL}/auth/reset-password/${token}">Reset Password</a></p>`,
             });
 
             return res.status(200).json({

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    avatar VARCHAR(255) NOT NULL DEFAULT 'def_avatar.png',
+    avatar VARCHAR(255) NOT NULL DEFAULT '/uploads/avatars/def_avatar.png',
     rating INT NOT NULL DEFAULT 0,
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     user_token VARCHAR(255) DEFAULT NULL,

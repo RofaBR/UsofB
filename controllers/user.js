@@ -110,8 +110,9 @@ const users_controller = {
                 throw new Error("No file uploaded");
             }
             const filename = `${req.user.userId}${path.extname(req.file.originalname)}`;
-            const updatedUser = await UserService.updateUser(req.user.userId, { avatar: filename });
-            
+            const avatarPath = `/uploads/avatars/${filename}`;
+            const updatedUser = await UserService.updateUser(req.user.userId, { avatar: avatarPath });
+
             return res.status(200).json({
                 status: "success",
                 message: "Avatar uploaded successfully",
@@ -122,7 +123,7 @@ const users_controller = {
                 status: "Fail",
                 type: "AVATAR_UPLOAD_ERROR",
                 message: err.message
-            }); 
+            });
         }
     }
 };
