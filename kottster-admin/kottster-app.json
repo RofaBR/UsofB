@@ -9,6 +9,7 @@
     "posts",
     "categories",
     "comments",
-    "likes"
+    "likes",
+    "subscription"
   ]
 }

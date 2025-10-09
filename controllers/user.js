@@ -29,18 +29,24 @@ const users_controller = {
 
     get_User: async (req, res) => {
         try {
-            const role = await UserService.checkRole(req.user.userId);
-            let user = await UserService.getUser(req.params.user_id)
-            if (role === "user") {
-                user = {
-                    full_name: user.full_name,
-                    avatar: user.avatar,
-                    rating: user.rating
-                }
+            const user = await UserService.getUser(req.params.user_id);
+
+            const isOwnProfile = req.user && req.user.userId == req.params.user_id;
+
+            const responseData = {
+                full_name: user.full_name,
+                avatar: user.avatar,
+                rating: user.rating
+            };
+
+            if (isOwnProfile) {
+                responseData.role = user.role;
+                responseData.login = user.login;
             }
+
             return res.status(200).json({
                 status: "Success",
-                user
+                user: responseData
             });
         } catch(err) {
             return res.status(400).json({

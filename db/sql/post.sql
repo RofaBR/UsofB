@@ -5,10 +5,11 @@ CREATE TABLE IF NOT EXISTS posts(
     author_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     status ENUM('active', 'inactive') DEFAULT 'active',
     content TEXT NOT NULL,
     ban_status BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (author_id) REFERENCES users(id) 
+    FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS post_categories (

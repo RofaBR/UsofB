@@ -38,9 +38,9 @@ const PostService = {
         });
 
         if (data.categories && data.categories.length > 0) {
-        for (const categoryId of data.categories) {
-            await PostCategoriesModel.create(post.id, categoryId);
-        }
+            for (const categoryId of data.categories) {
+                await PostCategoriesModel.create(post.id, categoryId);
+            }
         }
 
         let savedImages = [];
@@ -77,17 +77,18 @@ const PostService = {
         if (post.author_id !== data.author_id) {
             throw new Error("You are not allowed to update this post");
         }
-        await PostCategoriesModel.deleteByPostId(data.post_id)
-        if (data.categories && data.categories.length > 0) {
-            for (const categoryId of data.categories) {
-                await PostCategoriesModel.create(data.post_id, categoryId);
+
+        if (data.categories !== undefined) {
+            await PostCategoriesModel.deleteByPostId(data.post_id);
+            if (data.categories.length > 0) {
+                for (const categoryId of data.categories) {
+                    await PostCategoriesModel.create(data.post_id, categoryId);
+                }
             }
         }
-        const newPostData = await PostModel.updateById(data.post_id, {
-            title: data.title,
-            content: data.content,
-            status: data.status
-        });
+
+        const { post_id, author_id, categories, ...updateData } = data;
+        const newPostData = await PostModel.updateById(post_id, updateData);
 
         let updatedImages = [];
         if (uploadedImages && uploadedImages.length > 0) {

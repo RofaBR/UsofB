@@ -9,8 +9,8 @@ import { requireRole } from "../middlewares/requireRole.js";
 
 const user_router = express.Router();
 
-user_router.get("/api/users", TokenValidator.validateAccess(), user_controller.get_Users);
-user_router.get("/api/users/:user_id", TokenValidator.validateAccess(), user_controller.get_User);
+user_router.get("/api/users", user_controller.get_Users);
+user_router.get("/api/users/:user_id", TokenValidator.validateOptionalAccess(), user_controller.get_User);
 user_router.post("/api/users", TokenValidator.validateAccess(), requireRole("admin"), validator.validate(schema.adminCreate), user_controller.post_create); 
 user_router.patch("/api/users/avatar", TokenValidator.validateAccess(), avatarMiddleware, user_controller.patch_uploadAvatar);         
 user_router.patch("/api/users/:user_id", TokenValidator.validateAccess(), validator.validate(schema.userUpdate), user_controller.patch_updateUser);
