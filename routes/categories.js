@@ -8,7 +8,7 @@ import { requireRole } from "../middlewares/requireRole.js";
 
 const categories_router = express.Router();
 
-categories_router.get("/api/categories/", TokenValidator.validateAccess(), categories_controller.get_getAll);
+categories_router.get("/api/categories/", categories_controller.get_getAll);
 categories_router.get("/api/admin/categories/:category_id", TokenValidator.validateAccess(), requireRole("admin"),categories_controller.get_category);
 categories_router.get("/api/admin/categories/:category_id/posts", TokenValidator.validateAccess(), requireRole("admin"), categories_controller.get_specifiedPost);
 categories_router.post("/api/admin/categories", TokenValidator.validateAccess(), requireRole("admin"), validator.validate(schema.create), categories_controller.post_create);
