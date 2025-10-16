@@ -48,7 +48,7 @@ export default class TokenValidator {
                 if (!tokenInDb) {
                     return authError(res, "Refresh token not found in database");
                 }
-                req.user = { id: userData.userId };
+                req.user = { userId: userData.userId };
                 req.refreshToken = refreshToken;
                 req.token_hash = tokenInDb.token_hash;
                 next();

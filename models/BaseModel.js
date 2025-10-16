@@ -58,5 +58,52 @@ export const createBaseModel = (tableName, db, SchemaClass) => {
             return true;
         },
 
+        async findPaginated(options = {}) {
+            const {
+                page = 1,
+                limit = 20,
+                where = {},
+                orderBy = 'id',
+                orderDir = 'DESC'
+            } = options;
+
+            const pageNum = parseInt(page, 10);
+            const limitNum = parseInt(limit, 10);
+            const offset = (pageNum - 1) * limitNum;
+
+            const whereKeys = Object.keys(where);
+            let whereClause = '';
+            let values = [];
+
+            if (whereKeys.length > 0) {
+                const conditions = whereKeys.map(k => `\`${k}\` = ?`);
+                whereClause = ` WHERE ${conditions.join(' AND ')}`;
+                values = Object.values(where);
+            }
+
+            let orderByClause = `\`${orderBy}\` ${orderDir}`;
+            if (orderBy !== 'id') {
+                orderByClause += ', `id` ASC';
+            }
+
+            const sql = `SELECT * FROM \`${tableName}\`${whereClause} ORDER BY ${orderByClause} LIMIT ${limitNum} OFFSET ${offset}`;
+            const [rows] = await db.execute(sql, values);
+
+            const countSql = `SELECT COUNT(*) as total FROM \`${tableName}\`${whereClause}`;
+            const [countResult] = await db.execute(countSql, values);
+            const total = countResult[0].total;
+
+            return {
+                data: rows.map(row => SchemaClass.read(row)),
+                pagination: {
+                    page: pageNum,
+                    limit: limitNum,
+                    total,
+                    totalPages: Math.ceil(total / limitNum),
+                    hasMore: pageNum * limitNum < total
+                }
+            };
+        },
+
     };
 };

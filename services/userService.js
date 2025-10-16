@@ -10,6 +10,10 @@ const UserService = {
         return await UserModel.find();
     },
 
+    async getPaginatedUsers(page = 1, limit = 20) {
+        return await UserModel.findPaginated({ page, limit, orderBy: 'rating', orderDir: 'DESC' });
+    },
+
     async getUser(id) {
         await this.calculateAndUpdateRating(id);
         return await UserModel.findById(id);

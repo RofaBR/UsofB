@@ -115,10 +115,15 @@ const post_controller = {
 
     get_comments: async(req, res) =>{
         try {
-            const comments = await CommentService.findAllCommentsToPost(req.params.post_id);
+            const page = parseInt(req.query.page, 10) || 1;
+            const limit = parseInt(req.query.limit, 10) || 20;
+
+            const result = await CommentService.getPaginatedComments(req.params.post_id, page, limit);
+
             return res.status(200).json({
                 status: "Success",
-                comments
+                data: result.data,
+                pagination: result.pagination
             });
         } catch(err) {
             return res.status(400).json({

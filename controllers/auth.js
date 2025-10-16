@@ -139,12 +139,12 @@ const auth_controller = {
 
     post_refreshToken : async (req, res) => {
         try {
-            const userId = req.user.id;
+            const userId = req.user.userId;
             const accessToken = TokenService.generateAccessToken({ userId });
             return res.status(200).json({
                 status: "Success",
                 accessToken,
-                user: req.user
+                user: { id: userId }
             });
         } catch(err) {
             return res.status(401).json({

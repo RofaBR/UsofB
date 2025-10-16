@@ -27,6 +27,16 @@ const CommentsService = {
 
     async findAllCommentsToPost(post_id) {
         return await CommentModel.find({ post_id });
+    },
+
+    async getPaginatedComments(post_id, page = 1, limit = 20) {
+        return await CommentModel.findPaginated({
+            page,
+            limit,
+            where: { post_id },
+            orderBy: 'publish_date',
+            orderDir: 'DESC'
+        });
     }
 };
 

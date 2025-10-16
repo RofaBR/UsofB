@@ -5,18 +5,24 @@ import path from "path";
 const users_controller = {
     get_Users: async (req, res) => {
         try {
-            const role = await UserService.checkRole(req.user.userId);
-            let users = await UserService.getAllUsers();
-            if (role === "user") {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 20;
+
+            const result = await UserService.getPaginatedUsers(page, limit);
+            let users = result.data;
+
+            if (!req.user || (req.user && await UserService.checkRole(req.user.userId) === "user")) {
                 users = users.map(u => ({
                     full_name: u.full_name,
                     avatar: u.avatar,
                     rating: u.rating,
                 }));
             }
+
             return res.status(200).json({
                 status: "Success",
-                users
+                data: users,
+                pagination: result.pagination
             });
         } catch(err) {
             return res.status(400).json({
@@ -34,6 +40,7 @@ const users_controller = {
             const isOwnProfile = req.user && req.user.userId == req.params.user_id;
 
             const responseData = {
+                id: user.id,
                 full_name: user.full_name,
                 avatar: user.avatar,
                 rating: user.rating
