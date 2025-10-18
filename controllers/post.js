@@ -17,7 +17,6 @@ const post_controller = {
             const favoriteOnly = req.query.favorite === "true";
             const search = req.query.search || '';
 
-            // Don't filter by status when fetching favorites, unless explicitly provided
             const status = favoriteOnly
                 ? (req.query.status || null)
                 : (req.query.status || "active");

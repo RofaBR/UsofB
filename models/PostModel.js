@@ -40,7 +40,6 @@ const PostModel = {
             search
         });
 
-        // Get total count with same filters
         const countQuery = this._buildPostCountQuery({
             categories,
             favoriteOnly,

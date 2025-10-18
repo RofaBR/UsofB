@@ -83,7 +83,6 @@ export const createBaseModel = (tableName, db, SchemaClass) => {
                 values.push(...Object.values(where));
             }
 
-            // Add search functionality
             if (search && searchFields.length > 0) {
                 const searchConditions = searchFields.map(field => `\`${field}\` LIKE ?`).join(' OR ');
                 whereClauses.push(`(${searchConditions})`);
