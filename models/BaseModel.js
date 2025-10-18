@@ -64,7 +64,9 @@ export const createBaseModel = (tableName, db, SchemaClass) => {
                 limit = 20,
                 where = {},
                 orderBy = 'id',
-                orderDir = 'DESC'
+                orderDir = 'DESC',
+                search = '',
+                searchFields = []
             } = options;
 
             const pageNum = parseInt(page, 10);
@@ -72,14 +74,23 @@ export const createBaseModel = (tableName, db, SchemaClass) => {
             const offset = (pageNum - 1) * limitNum;
 
             const whereKeys = Object.keys(where);
-            let whereClause = '';
+            let whereClauses = [];
             let values = [];
 
             if (whereKeys.length > 0) {
                 const conditions = whereKeys.map(k => `\`${k}\` = ?`);
-                whereClause = ` WHERE ${conditions.join(' AND ')}`;
-                values = Object.values(where);
+                whereClauses.push(...conditions);
+                values.push(...Object.values(where));
             }
+
+            // Add search functionality
+            if (search && searchFields.length > 0) {
+                const searchConditions = searchFields.map(field => `\`${field}\` LIKE ?`).join(' OR ');
+                whereClauses.push(`(${searchConditions})`);
+                searchFields.forEach(() => values.push(`%${search}%`));
+            }
+
+            const whereClause = whereClauses.length > 0 ? ` WHERE ${whereClauses.join(' AND ')}` : '';
 
             let orderByClause = `\`${orderBy}\` ${orderDir}`;
             if (orderBy !== 'id') {

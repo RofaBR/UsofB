@@ -10,6 +10,8 @@
     "categories",
     "comments",
     "likes",
-    "subscription"
+    "subscription",
+    "postCategories",
+    "favorite"
   ]
 }

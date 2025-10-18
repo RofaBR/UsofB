@@ -14,7 +14,13 @@ const post_controller = {
             const limit = parseInt(req.query.limit, 10) || 10;
             const orderBy = req.query.orderBy || "publish_date";
             const orderDir = (req.query.direction || "DESC").toUpperCase();
-            const status = req.query.status || "active";
+            const favoriteOnly = req.query.favorite === "true";
+            const search = req.query.search || '';
+
+            // Don't filter by status when fetching favorites, unless explicitly provided
+            const status = favoriteOnly
+                ? (req.query.status || null)
+                : (req.query.status || "active");
 
             let categories = [];
             if (req.query.categories) {
@@ -31,8 +37,6 @@ const post_controller = {
                 userId = req.user.userId;
             }
 
-            const favoriteOnly = req.query.favorite === "true";
-
             const result = await PostService.getPosts({
                 page,
                 limit,
@@ -43,6 +47,7 @@ const post_controller = {
                 userId,
                 status,
                 role,
+                search,
             });
 
             return res.status(200).json({

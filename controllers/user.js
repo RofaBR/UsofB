@@ -7,8 +7,9 @@ const users_controller = {
         try {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 20;
+            const search = req.query.search || '';
 
-            const result = await UserService.getPaginatedUsers(page, limit);
+            const result = await UserService.getPaginatedUsers(page, limit, search);
             let users = result.data;
 
             if (!req.user || (req.user && await UserService.checkRole(req.user.userId) === "user")) {

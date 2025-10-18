@@ -13,17 +13,18 @@ const PostModel = {
         return rows.map(row => PostsSchema.read(row));
     },
 
-    async findWithFilters({ 
-        page = 1, 
-        limit = 10, 
-        orderBy = "publish_date", 
-        orderDir = "DESC", 
-        categories = [], 
+    async findWithFilters({
+        page = 1,
+        limit = 10,
+        orderBy = "publish_date",
+        orderDir = "DESC",
+        categories = [],
         favoriteOnly = false,
         userId = null,
         status = "active",
         role = "user",
-        authorId = null
+        authorId = null,
+        search = ''
     }) {
         const queryBuilder = this._buildPostQuery({
             orderBy,
@@ -35,9 +36,22 @@ const PostModel = {
             role,
             authorId,
             page,
-            limit
+            limit,
+            search
         });
 
+        // Get total count with same filters
+        const countQuery = this._buildPostCountQuery({
+            categories,
+            favoriteOnly,
+            userId,
+            status,
+            role,
+            authorId,
+            search
+        });
+
+        const [[{ total }]] = await mysql_pool.execute(countQuery.sql, countQuery.values);
         const [rows] = await mysql_pool.execute(queryBuilder.sql, queryBuilder.values);
         const data = rows.map(row => PostsSchema.read(row));
 
@@ -46,6 +60,8 @@ const PostModel = {
             pagination: {
                 page,
                 limit,
+                total,
+                totalPages: Math.ceil(total / limit),
                 count: data.length,
                 hasNextPage: data.length === limit,
             },
@@ -74,7 +90,8 @@ const PostModel = {
         role = "user",
         authorId = null,
         page = 1,
-        limit = 10
+        limit = 10,
+        search = ''
     }) {
         let values = [];
         let joins = [];
@@ -94,6 +111,11 @@ const PostModel = {
         if (authorId) {
             whereClauses.push("p.author_id = ?");
             values.push(authorId);
+        }
+
+        if (search) {
+            whereClauses.push("(p.title LIKE ? OR p.content LIKE ?)");
+            values.push(`%${search}%`, `%${search}%`);
         }
 
         if (this._isLikeBasedOrdering(orderBy)) {
@@ -149,6 +171,66 @@ const PostModel = {
         if (orderBy === "score") return "score";
         if (orderBy === "status") return "p.status";
         return `p.${orderBy}`;
+    },
+
+    _buildPostCountQuery({
+        categories = [],
+        favoriteOnly = false,
+        userId = null,
+        status = null,
+        role = "user",
+        authorId = null,
+        search = ''
+    }) {
+        let values = [];
+        let joins = [];
+        let whereClauses = [];
+        let needsDistinct = false;
+
+        if (role !== "admin" && role !== "owner") {
+            whereClauses.push("p.ban_status = 0");
+        }
+
+        if (status) {
+            whereClauses.push("p.status = ?");
+            values.push(status);
+        }
+
+        if (authorId) {
+            whereClauses.push("p.author_id = ?");
+            values.push(authorId);
+        }
+
+        if (search) {
+            whereClauses.push("(p.title LIKE ? OR p.content LIKE ?)");
+            values.push(`%${search}%`, `%${search}%`);
+        }
+
+        if (categories.length > 0) {
+            joins.push(`JOIN post_categories pc ON p.id = pc.post_id`);
+            const placeholders = categories.map(() => "?").join(",");
+            whereClauses.push(`pc.category_id IN (${placeholders})`);
+            values.push(...categories);
+            needsDistinct = true;
+        }
+
+        if (favoriteOnly && userId) {
+            joins.push(`JOIN favorite f ON f.post_id = p.id`);
+            whereClauses.push(`f.user_id = ?`);
+            values.push(userId);
+            needsDistinct = true;
+        }
+
+        const countSelect = needsDistinct ? "COUNT(DISTINCT p.id)" : "COUNT(*)";
+
+        let sql = `
+            SELECT ${countSelect} as total
+            FROM posts p
+            ${joins.join(" ")}
+            ${whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : ""}
+        `;
+
+        return { sql, values };
     }
 };
 

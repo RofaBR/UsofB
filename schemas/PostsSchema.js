@@ -17,17 +17,23 @@ const PostCreateSchema = PostSchema.pick({
     content: true,
     status: true,
 }).extend({
-    categories: z.array(z.number().min(1, "Category ID must be positive")).optional(),
+    categories: z.array(z.coerce.number().min(1, "Category ID must be positive")).optional(),
     ban_status: z.boolean().optional(),
 });
 
 const PostUpdateSchema = z.object({
     title: z.string().min(3).optional(),
     content: z.string().min(1).optional(),
-    categories: z.array(z.number().min(1)).optional(),
+    categories: z.array(z.coerce.number().min(1)).optional(),
 });
 
-const ReadPostSchema = PostSchema;
+const ReadPostSchema = PostSchema.extend({
+    categories: z.array(z.object({
+        id: z.number(),
+        title: z.string(),
+        description: z.string().optional()
+    })).optional()
+});
 
 export default {
     create: (data) => PostCreateSchema.parse(data),

@@ -2,10 +2,43 @@ import PostModel from "../models/PostModel.js"
 import PostCategoriesModel from "../models/PostCategoriesModel.js"
 import NotificationService from "./NotificationService.js"
 import PostImageService from "./postImageService.js"
+import CategoriesService from "./categoriesService.js"
+import UserModel from "../models/UserModel.js"
+import CommentModel from "../models/CommentModel.js"
 
 const PostService = {
     async getPosts(params) {
-        return await PostModel.findWithFilters(params);
+        const result = await PostModel.findWithFilters(params);
+
+        console.log("waaaaaaaaaaaaa")
+        const enrichedPosts = await Promise.all(
+            result.data.map(async (post) => {
+                // Get categories
+                const categoryIds = await CategoriesService.getCategories(post.id);
+                const categories = await CategoriesService.findAllWithIds(categoryIds);
+
+                // Get author info
+                const author = await UserModel.findById(post.author_id);
+
+                // Get comment count
+                const comments = await CommentModel.find({ post_id: post.id });
+
+                return {
+                    ...post,
+                    categories,
+                    author_name: author?.full_name || 'Unknown',
+                    author_avatar: author?.avatar || null,
+                    comments_count: comments.length,
+                    views: 0, // TODO: implement views tracking
+                    ban_status: post.ban_status || false
+                };
+            })
+        );
+
+        return {
+            ...result,
+            data: enrichedPosts
+        };
     },
 
     async getPost(post_id) {
