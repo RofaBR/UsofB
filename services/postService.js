@@ -10,17 +10,15 @@ const PostService = {
     async getPosts(params) {
         const result = await PostModel.findWithFilters(params);
 
-        console.log("waaaaaaaaaaaaa")
+        const postIds = result.data.map(post => post.id);
+        const ratingsMap = await PostModel.calculateRatingsForPosts(postIds);
+
         const enrichedPosts = await Promise.all(
             result.data.map(async (post) => {
-                // Get categories
                 const categoryIds = await CategoriesService.getCategories(post.id);
                 const categories = await CategoriesService.findAllWithIds(categoryIds);
 
-                // Get author info
                 const author = await UserModel.findById(post.author_id);
-
-                // Get comment count
                 const comments = await CommentModel.find({ post_id: post.id });
 
                 return {
@@ -29,8 +27,9 @@ const PostService = {
                     author_name: author?.full_name || 'Unknown',
                     author_avatar: author?.avatar || null,
                     comments_count: comments.length,
-                    views: 0, // TODO: implement views tracking
-                    ban_status: post.ban_status || false
+                    views: post.views || 0,
+                    ban_status: post.ban_status || false,
+                    rating: ratingsMap[post.id] || 0
                 };
             })
         );
@@ -43,9 +42,11 @@ const PostService = {
 
     async getPost(post_id) {
         const post = await PostModel.findById(post_id);
-        if (post) {
-            post.images = PostImageService.getPostImages(post_id);
-        }
+        if (!post) return null;
+
+        post.images = PostImageService.getPostImages(post_id);
+        post.rating = await PostModel.calculateRating(post_id);
+
         return post;
     },
 
@@ -161,6 +162,15 @@ const PostService = {
 
     async postBan({post_id, ban_status }) {
         return await PostModel.updateById(post_id, { ban_status });
+    },
+
+    async incrementViews(post_id) {
+        const post = await PostModel.findById(post_id);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+        const currentViews = post.views || 0;
+        return await PostModel.updateById(post_id, { views: currentViews + 1 });
     }
 
 }

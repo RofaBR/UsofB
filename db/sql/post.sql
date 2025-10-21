@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS posts(
     status ENUM('active', 'inactive') DEFAULT 'active',
     content TEXT NOT NULL,
     ban_status BOOLEAN NOT NULL DEFAULT FALSE,
+    views INT DEFAULT 0,
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
 

@@ -20,19 +20,6 @@ const UserModel = {
         await mysql_pool.execute(USER_QUERIES.UPDATE_RATING, [rating, userId]);
         return true;
     },
-
-    // async createUser(user) {
-    //     const [ result ] = await mysql_pool.execute(USER_QUERIES.CREATE, [
-    //         user.login,
-    //         user.password,
-    //         user.full_name,
-    //         user.email,
-    //         user.avatar || 'def_avatar.png',
-    //         user.role,
-    //         user.user_token
-    //     ]);
-    //     return result.insertId
-    // }
 };
 
 export default UserModel;

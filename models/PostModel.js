@@ -230,6 +230,46 @@ const PostModel = {
         `;
 
         return { sql, values };
+    },
+
+    async calculateRating(postId) {
+        const [likes] = await mysql_pool.execute(
+            `SELECT
+                SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END) AS like_count,
+                SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END) AS dislike_count
+             FROM likes
+             WHERE post_id = ? AND comment_id IS NULL`,
+            [postId]
+        );
+
+        const likeCount = likes[0]?.like_count || 0;
+        const dislikeCount = likes[0]?.dislike_count || 0;
+        return likeCount - dislikeCount;
+    },
+
+    async calculateRatingsForPosts(postIds) {
+        if (!postIds || postIds.length === 0) return {};
+
+        const placeholders = postIds.map(() => "?").join(",");
+        const [results] = await mysql_pool.execute(
+            `SELECT
+                post_id,
+                SUM(CASE WHEN type = 'like' THEN 1 ELSE 0 END) AS like_count,
+                SUM(CASE WHEN type = 'dislike' THEN 1 ELSE 0 END) AS dislike_count
+             FROM likes
+             WHERE post_id IN (${placeholders}) AND comment_id IS NULL
+             GROUP BY post_id`,
+            postIds
+        );
+
+        const ratingsMap = {};
+        results.forEach(row => {
+            const likeCount = row.like_count || 0;
+            const dislikeCount = row.dislike_count || 0;
+            ratingsMap[row.post_id] = likeCount - dislikeCount;
+        });
+
+        return ratingsMap;
     }
 };
 

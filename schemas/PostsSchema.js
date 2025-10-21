@@ -9,6 +9,7 @@ export const PostSchema = z.object({
     content: z.string().min(1, "Content is required"),
     categories: z.array(z.number().min(1)).optional(),
     ban_status: z.coerce.boolean().default(false),
+    views: z.number().int().min(0).default(0).optional(),
 });
 
 const PostCreateSchema = PostSchema.pick({
@@ -25,6 +26,8 @@ const PostUpdateSchema = z.object({
     title: z.string().min(3).optional(),
     content: z.string().min(1).optional(),
     categories: z.array(z.coerce.number().min(1)).optional(),
+    views: z.number().int().min(0).optional(),
+    ban_status: z.boolean().optional(),
 });
 
 const ReadPostSchema = PostSchema.extend({

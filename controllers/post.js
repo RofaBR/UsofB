@@ -416,6 +416,23 @@ const post_controller = {
                 message: err.message
             });
         }
+    },
+
+    post_increment_views: async (req, res) => {
+        try {
+            const post_id = req.params.post_id;
+            await PostService.incrementViews(post_id);
+            return res.status(200).json({
+                status: "Success",
+                message: "View count incremented"
+            });
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "POST_INCREMENT_VIEWS_ERROR",
+                message: err.message
+            });
+        }
     }
 
 }

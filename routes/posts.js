@@ -24,6 +24,7 @@ post_router.post("/api/posts/:post_id/like", TokenValidator.validateAccess(), va
 post_router.post("/api/posts/:post_id/favorite", TokenValidator.validateAccess(), post_controller.post_favorite);
 post_router.post("/api/admin/posts/:post_id/ban", TokenValidator.validateAccess(), requireRole("admin") ,post_controller.post_ban);
 post_router.post("/api/posts/:post_id/subscribe", TokenValidator.validateAccess(), post_controller.post_subscribe);
+post_router.post("/api/posts/:post_id/views", post_controller.post_increment_views);
 post_router.patch("/api/posts/:post_id", TokenValidator.validateAccess(), handleImageUpload, validator.validate(PostSchema.update), post_controller.patch_post);
 post_router.delete("/api/posts/:post_id/subscribe", TokenValidator.validateAccess(), post_controller.delete_subscribe);
 post_router.delete("/api/posts/:post_id", TokenValidator.validateAccess(), post_controller.delete_post);
