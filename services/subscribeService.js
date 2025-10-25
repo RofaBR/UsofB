@@ -11,6 +11,11 @@ const SubscribeService = {
             throw new Error("Subscription not found for this user.");
         }
         await SubscribeModel.deleteSubscribe({user_id, post_id});
+    },
+
+    async getSubscriptionStatus(user_id, post_id) {
+        const subscription = await SubscribeModel.findByUserAndPost(user_id, post_id);
+        return !!subscription;
     }
 }
 

@@ -25,6 +25,7 @@ const PostCreateSchema = PostSchema.pick({
 const PostUpdateSchema = z.object({
     title: z.string().min(3).optional(),
     content: z.string().min(1).optional(),
+    status: z.enum(["active", "inactive"]).optional(),
     categories: z.array(z.coerce.number().min(1)).optional(),
     views: z.number().int().min(0).optional(),
     ban_status: z.boolean().optional(),

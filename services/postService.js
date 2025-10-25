@@ -25,6 +25,7 @@ const PostService = {
                     ...post,
                     categories,
                     author_name: author?.full_name || 'Unknown',
+                    author_login: author?.login || 'unknown',
                     author_avatar: author?.avatar || null,
                     comments_count: comments.length,
                     views: post.views || 0,
@@ -44,8 +45,13 @@ const PostService = {
         const post = await PostModel.findById(post_id);
         if (!post) return null;
 
+        const author = await UserModel.findById(post.author_id);
+
         post.images = PostImageService.getPostImages(post_id);
         post.rating = await PostModel.calculateRating(post_id);
+        post.author_name = author?.full_name || 'Unknown';
+        post.author_login = author?.login || 'unknown';
+        post.author_avatar = author?.avatar || null;
 
         return post;
     },
@@ -103,7 +109,7 @@ const PostService = {
         return PostImageService.clearPostImages(postId);
     },
     
-    async updatePost(data, uploadedImages = []) {
+    async updatePost(data, uploadedImages = [], keepImages = []) {
         const post = await PostModel.findById(data.post_id);
         if (!post) {
             throw new Error("Post not found");
@@ -124,11 +130,7 @@ const PostService = {
         const { post_id, author_id, categories, ...updateData } = data;
         const newPostData = await PostModel.updateById(post_id, updateData);
 
-        let updatedImages = [];
-        if (uploadedImages && uploadedImages.length > 0) {
-            PostImageService.clearPostImages(data.post_id);
-            updatedImages = PostImageService.moveUploadedImages(data.post_id, uploadedImages);
-        }
+        const updatedImages = PostImageService.replacePostImages(data.post_id, uploadedImages, keepImages);
 
         try {
             await NotificationService.notifySubscribersOfPostUpdate(data.post_id, data.author_id);
@@ -138,7 +140,7 @@ const PostService = {
 
         return {
             newPostData,
-            images: updatedImages.length > 0 ? updatedImages : PostImageService.getPostImages(data.post_id)
+            images: updatedImages
         };
     },
 
@@ -171,6 +173,30 @@ const PostService = {
         }
         const currentViews = post.views || 0;
         return await PostModel.updateById(post_id, { views: currentViews + 1 });
+    },
+
+    async addPostImages(postId, userId, uploadedImages) {
+        const post = await PostModel.findById(postId);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+        if (post.author_id !== userId) {
+            throw new Error("You are not allowed to add images to this post");
+        }
+
+        return PostImageService.appendUploadedImages(postId, uploadedImages);
+    },
+
+    async deletePostImage(postId, userId, imageId) {
+        const post = await PostModel.findById(postId);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+        if (post.author_id !== userId) {
+            throw new Error("You are not allowed to delete images from this post");
+        }
+
+        return PostImageService.deleteImageById(postId, imageId);
     }
 
 }

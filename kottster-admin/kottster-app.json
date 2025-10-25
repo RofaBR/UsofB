@@ -5,13 +5,13 @@
     "icon": "https://web.kottster.app/icon.png"
   },
   "menuPageOrder": [
-    "users",
     "posts",
     "categories",
     "comments",
     "likes",
     "subscription",
     "postCategories",
-    "favorite"
+    "favorite",
+    "users"
   ]
 }

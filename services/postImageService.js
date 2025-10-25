@@ -136,6 +136,103 @@ const PostImageService = {
                 console.error(`Error cleaning up temp file ${file.path}:`, error);
             }
         });
+    },
+
+    deleteImageById(postId, imageId) {
+        const uploadDir = `public/uploads/posts/${postId}`;
+        if (!fs.existsSync(uploadDir)) {
+            throw new Error("Post image directory not found");
+        }
+
+        const imagePath = path.join(uploadDir, imageId);
+
+        if (!fs.existsSync(imagePath)) {
+            throw new Error("Image not found");
+        }
+
+        if (!fs.statSync(imagePath).isFile()) {
+            throw new Error("Not a valid image file");
+        }
+
+        try {
+            fs.unlinkSync(imagePath);
+            return { success: true, message: "Image deleted successfully" };
+        } catch (error) {
+            console.error(`Error deleting image ${imageId} for post ${postId}:`, error);
+            throw new Error(`Failed to delete image: ${error.message}`);
+        }
+    },
+
+    replacePostImages(postId, uploadedFiles, keepImageFilenames = []) {
+        const targetDir = this.createPostImageDirectory(postId);
+
+        const uploadedFilePaths = new Set();
+        if (uploadedFiles && uploadedFiles.length > 0) {
+            uploadedFiles.forEach(file => {
+                uploadedFilePaths.add(path.basename(file.path));
+            });
+        }
+
+        const existingImages = this.getPostImages(postId);
+
+        existingImages.forEach(img => {
+            if (!keepImageFilenames.includes(img.filename) && !uploadedFilePaths.has(img.filename)) {
+                try {
+                    const imagePath = path.join(targetDir, img.filename);
+                    if (fs.existsSync(imagePath)) {
+                        fs.unlinkSync(imagePath);
+                    }
+                } catch (error) {
+                    console.error(`Error deleting image ${img.filename}:`, error);
+                }
+            }
+        });
+
+        if (!uploadedFiles || uploadedFiles.length === 0) {
+            return this.getPostImages(postId);
+        }
+
+        let maxIndex = 0;
+        const keptImages = this.getPostImages(postId);
+        keptImages.forEach(img => {
+            const match = img.filename.match(/^image-(\d+)\./);
+            if (match) {
+                const num = parseInt(match[1], 10);
+                if (num > maxIndex) {
+                    maxIndex = num;
+                }
+            }
+        });
+
+        const renamedImages = [];
+        uploadedFiles.forEach((file, index) => {
+            try {
+                const ext = path.extname(file.originalname);
+                const newFilename = `image-${maxIndex + index + 1}${ext}`;
+                const targetPath = path.join(targetDir, newFilename);
+
+                if (fs.existsSync(file.path)) {
+                    fs.renameSync(file.path, targetPath);
+                    renamedImages.push({
+                        filename: newFilename,
+                        originalname: file.originalname,
+                        path: `/uploads/posts/${postId}/${newFilename}`,
+                        size: file.size
+                    });
+                }
+            } catch (error) {
+                console.error(`Error renaming image ${file.originalname}:`, error);
+                if (fs.existsSync(file.path)) {
+                    try {
+                        fs.unlinkSync(file.path);
+                    } catch (cleanupError) {
+                        console.error(`Error cleaning up failed upload:`, cleanupError);
+                    }
+                }
+            }
+        });
+
+        return this.getPostImages(postId);
     }
 };
 

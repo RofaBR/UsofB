@@ -20,6 +20,11 @@ const UserModel = {
         await mysql_pool.execute(USER_QUERIES.UPDATE_RATING, [rating, userId]);
         return true;
     },
+
+    async getUserStatistics(userId) {
+        const [rows] = await mysql_pool.execute(USER_QUERIES.GET_USER_STATISTICS, [userId, userId, userId]);
+        return rows[0] || { posts_count: 0, comments_count: 0, rating: 0 };
+    },
 };
 
 export default UserModel;

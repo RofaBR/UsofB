@@ -12,6 +12,15 @@ const FavoriteService = {
         }
 
         await FavoriteModel.deleteFavorite({ user_id, post_id });
+    },
+
+    async getUserFavorites(user_id) {
+        return await FavoriteModel.findByUserWithPosts(user_id);
+    },
+
+    async isFavorite(user_id, post_id) {
+        const favorite = await FavoriteModel.findByUserAndPost(user_id, post_id);
+        return !!favorite;
     }
 };
 

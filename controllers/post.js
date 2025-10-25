@@ -17,9 +17,14 @@ const post_controller = {
             const favoriteOnly = req.query.favorite === "true";
             const search = req.query.search || '';
 
-            const status = favoriteOnly
-                ? (req.query.status || null)
-                : (req.query.status || "active");
+            let status;
+            if (req.query.status === 'all') {
+                status = null;
+            } else if (favoriteOnly) {
+                status = req.query.status || null;
+            } else {
+                status = req.query.status || "active";
+            }
 
             let categories = [];
             if (req.query.categories) {
@@ -64,12 +69,28 @@ const post_controller = {
 
     get_post: async (req, res) => {
         try {
-            const post = await PostService.getPost(req.params.post_id)
-            return res.status(200).json({
+            const post = await PostService.getPost(req.params.post_id);
+            const response = {
                 status: "Success",
                 post
-            });
+            };
+
+            if (req.user) {
+                const userId = req.user.userId;
+                const postId = Number(req.params.post_id);
+
+                const [isSubscribed, isFavorite] = await Promise.all([
+                    SubscribeService.getSubscriptionStatus(userId, postId),
+                    FavoriteService.isFavorite(userId, postId)
+                ]);
+
+                response.isSubscribed = isSubscribed;
+                response.isFavorite = isFavorite;
+            }
+
+            return res.status(200).json(response);
         } catch(err) {
+            console.error('Error in get_post:', err);
             return res.status(400).json({
                 status: "Fail",
                 type: "POST_FETCH_ERROR",
@@ -81,15 +102,6 @@ const post_controller = {
     get_myposts: async (req, res) => {
         try {
             const userIdFromToken = req.user.userId;
-            const userIdFromParams = req.params.user_id;
-
-            if (parseInt(userIdFromParams, 10) !== userIdFromToken) {
-                return res.status(403).json({
-                    status: "Fail",
-                    type: "FORBIDDEN",
-                    message: "You are not allowed to view posts of another user",
-                });
-            }
 
             const page = parseInt(req.query.page, 10) || 1;
             const limit = parseInt(req.query.limit, 10) || 10;
@@ -121,8 +133,9 @@ const post_controller = {
         try {
             const page = parseInt(req.query.page, 10) || 1;
             const limit = parseInt(req.query.limit, 10) || 20;
+            const userId = req.user?.userId || null;
 
-            const result = await CommentService.getPaginatedComments(req.params.post_id, page, limit);
+            const result = await CommentService.getPaginatedComments(req.params.post_id, page, limit, userId);
 
             return res.status(200).json({
                 status: "Success",
@@ -312,9 +325,9 @@ const post_controller = {
         try {
             const subscribeData = {
                 user_id: req.user.userId,
-                post_id: Number(req.params.post_id) 
+                post_id: Number(req.params.post_id)
             }
-            await SubscribeService.postSubscribe(subscribeData);   
+            await SubscribeService.postSubscribe(subscribeData);
             return res.status(201).json({
                 status: "Success"
             })
@@ -324,6 +337,24 @@ const post_controller = {
                 type: "POST_SUBSCRIBE_ERROR",
                 message: err.message
             })
+        }
+    },
+
+    get_subscribe_status: async (req, res) => {
+        try {
+            const user_id = req.user.userId;
+            const post_id = Number(req.params.post_id);
+            const subscribed = await SubscribeService.getSubscriptionStatus(user_id, post_id);
+            return res.status(200).json({
+                status: "Success",
+                subscribed
+            });
+        } catch(err) {
+            return res.status(400).json({
+                status: "Fail",
+                type: "GET_SUBSCRIBE_STATUS_ERROR",
+                message: err.message
+            });
         }
     },
 
@@ -404,7 +435,9 @@ const post_controller = {
                 ...req.validated,
             }
             const uploadedImages = req.uploadedImages || [];
-            const result = await PostService.updatePost(postData, uploadedImages);
+            const keepImages = req.body.keepImages ? JSON.parse(req.body.keepImages) : [];
+
+            const result = await PostService.updatePost(postData, uploadedImages, keepImages);
             return res.status(200).json({
                 status: "success",
                 post: result,

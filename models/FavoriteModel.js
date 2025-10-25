@@ -13,6 +13,11 @@ const FavoriteModel = {
     async findByUserAndPost(user_id, post_id) {
         const [rows] = await mysql_pool.execute(FAVORITE_QUERIES.FIND_BY_USER_AND_POST, [user_id, post_id]);
         return rows[0];
+    },
+
+    async findByUserWithPosts(user_id) {
+        const [rows] = await mysql_pool.execute(FAVORITE_QUERIES.FIND_BY_USER_WITH_POSTS, [user_id]);
+        return rows;
     }
 };
 

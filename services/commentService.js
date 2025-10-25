@@ -29,14 +29,17 @@ const CommentsService = {
         return await CommentModel.find({ post_id });
     },
 
-    async getPaginatedComments(post_id, page = 1, limit = 20) {
-        return await CommentModel.findPaginated({
+    async getPaginatedComments(post_id, page = 1, limit = 20, userId = null) {
+        return await CommentModel.findPaginatedWithDetails({
             page,
             limit,
-            where: { post_id },
-            orderBy: 'publish_date',
-            orderDir: 'DESC'
+            post_id,
+            userId
         });
+    },
+
+    async getUserComments(userId, page = 1, limit = 20) {
+        return await CommentModel.findByAuthorId(userId, page, limit);
     }
 };
 

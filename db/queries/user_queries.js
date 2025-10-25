@@ -30,4 +30,10 @@ export const USER_QUERIES = {
     FIND_BY_LOGIN: `SELECT * FROM users WHERE login = ?`,
     FIND_BY_EMAIL: `SELECT * FROM users WHERE email = ?`,
     DELETE: `DELETE FROM users WHERE id = ?`,
+    GET_USER_STATISTICS: `
+        SELECT
+            (SELECT COUNT(*) FROM posts WHERE author_id = ?) as posts_count,
+            (SELECT COUNT(*) FROM comments WHERE author_id = ?) as comments_count,
+            (SELECT rating FROM users WHERE id = ?) as rating
+    `,
 };

@@ -11,6 +11,7 @@ export const UserSchema = z.object({
     role: z.enum(["user", "admin"]),
     user_token: z.string().nullable().optional(),
     email_confirmed: z.number().optional(),
+    pending_email: z.string().nullable().optional(),
 });
 
 const CreateUserSchema = UserSchema.partial();
@@ -43,6 +44,7 @@ const AdminCreateUserSchema = UserSchema.pick({
 
 const UserSelfUpdateSchema = z.object({
     full_name: z.string().min(1, "Full name is required").optional(),
+    email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address").optional(),
     avatar: z.string().optional(),
     password: z.string().min(6, "Password must be at least 6 characters").optional(),
     confirmPassword: z.string().min(6, "Confirm Password is required").optional()
@@ -73,6 +75,23 @@ const PasswordResetSchema = z.object({
     path: ["confirmPassword"],
 });
 
+const PasswordChangeSchema = z.object({
+    password: UserSchema.shape.password,
+    confirmPassword: z.string().min(6, "Confirm Password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+});
+
+const ProfileUpdateSchema = z.object({
+    full_name: z.string().min(1, "Full name is required")
+});
+
+const LoginChangeSchema = z.object({
+    newLogin: z.string().min(3, "New login must be at least 3 characters"),
+    currentPassword: z.string().min(6, "Current password is required")
+});
+
 const UpdateSchema = UserSchema.partial();
 
 export default {
@@ -85,5 +104,8 @@ export default {
   read: (data) => ReadUserSchena.parse(data),
   email: (data) => EmailSchema.parse(data),
   passwordReset: (data) => PasswordResetSchema.parse(data),
+  passwordChange: (data) => PasswordChangeSchema.parse(data),
+  profileUpdate: (data) => ProfileUpdateSchema.parse(data),
+  loginChange: (data) => LoginChangeSchema.parse(data),
   create: (data) => CreateUserSchema.parse(data),
 };
