@@ -101,7 +101,15 @@ const post_controller = {
 
     get_myposts: async (req, res) => {
         try {
-            const userIdFromToken = req.user.userId;
+            const userIdFromUrl = req.params.user_id;
+
+            if (!userIdFromUrl || isNaN(parseInt(userIdFromUrl, 10))) {
+                return res.status(400).json({
+                    status: "Fail",
+                    type: "INVALID_REQUEST",
+                    message: "Valid user ID is required in the URL.",
+                });
+            }
 
             const page = parseInt(req.query.page, 10) || 1;
             const limit = parseInt(req.query.limit, 10) || 10;
@@ -113,7 +121,7 @@ const post_controller = {
                 limit,
                 orderBy,
                 orderDir,
-                userId: userIdFromToken,
+                userId: userIdFromUrl,
             });
 
             return res.status(200).json({
